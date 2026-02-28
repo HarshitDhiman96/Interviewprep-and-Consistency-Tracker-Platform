@@ -1,0 +1,2 @@
+1. pagination in fetchbyskill route so that we can handle logs more efficiently
+2. indexing in log model for fast searching or filtering 
