@@ -30,4 +30,6 @@ const logschema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+logschema.index({ user: 1, createdAt: -1 });
+
 module.exports = new mongoose.model('log', logschema)

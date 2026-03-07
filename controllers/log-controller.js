@@ -29,20 +29,70 @@ const addlog = async (req, res) => {
 }
 const dailylog = async (req, res) => {
     try {
-        
+        const date = new Date(req.body.date);
+        const userID=req.user.id;
+        const start = new Date(date.setHours(0, 0, 0, 0));
+        const end = new Date(date.setHours(23, 59, 59, 999));
+
+        const dailylog = await log.find({
+            user: userID,
+            createdAt: { $gte: start, $lte: end }
+        });
+        if (dailylog.length === 0) {
+            return res.status(400).json({
+                message: "no log found ",
+                status: false
+            })
+        }
+        res.status(200).json({
+            data: dailylog
+        })
     } catch (e) {
         res.status(400).json({
-            message: "error while fetching daily log",
+            message: "error while fetching daily log"
         })
+        console.log(e)
     }
 }
 const weeklog = async (req, res) => {
     try {
 
-    } catch (e) {
-        res.status(400).json({
-            message: "error while fetching weekly log",
-        })
+        const userID = req.user.id;
+
+        const startDate = new Date(req.body.startDate);
+        const endDate = new Date(req.body.endDate);
+
+        startDate.setHours(0,0,0,0);
+        endDate.setHours(23,59,59,999);
+
+        const logs = await log.find({
+            user: userID,
+            createdAt: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        }).sort({ createdAt: -1 });
+
+        if (logs.length === 0) {
+            return res.status(404).json({
+                message: "No logs found for this week"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            count: logs.length,
+            data: logs
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500).json({
+            message: "Error fetching weekly logs"
+        });
+
     }
 }
 const filterbyskills = async (req, res) => {
@@ -64,9 +114,9 @@ const filterbyskills = async (req, res) => {
             });
         }
 
-        const skilllog = await log.find({ 
-            skill: skillname, 
-            user: userID 
+        const skilllog = await log.find({
+            skill: skillname,
+            user: userID
         });
 
         if (skilllog.length === 0) {
