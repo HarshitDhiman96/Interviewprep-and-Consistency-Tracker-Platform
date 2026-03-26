@@ -58,7 +58,7 @@ const login = async (req, res) => {
         useremail:loginuser.email,
         role:loginuser.role
       },process.env.jwtkey,{
-        expiresIn:"30m"
+        expiresIn:"2h"
       })
       res.status(200).json({
         success:true,

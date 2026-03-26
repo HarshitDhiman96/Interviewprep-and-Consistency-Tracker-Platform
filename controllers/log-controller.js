@@ -1,4 +1,5 @@
 const log = require('../models/logs-model')
+const updateStreak=require("../utils/streak-utils")
 
 const addlog = async (req, res) => {
     try {
@@ -14,12 +15,15 @@ const addlog = async (req, res) => {
         const newlog = new log({ user: userID, skill, status, topic, difficulty, timespent });
         // console.log(newlog);
         await newlog.save();
+
+        await updateStreak(userID);
+        // console.log("Calling updateStreak for:", userID);
+
         return res.status(201).json({
             message: "Log added successfully",
             success: true,
             data: newlog
         });
-
     } catch (e) {
         res.status(400).json({
             message: e.message,
