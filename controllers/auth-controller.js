@@ -36,7 +36,7 @@ const login = async (req, res) => {
   try {
     // console.log(req.body);
     const{email,password}=req.body;
-    const loginuser=await user.findOne({email});
+    const loginuser = await user.findOne({ $or: [{ email: email }, { name: email }] });
     if(!loginuser){
       return res.status(400).json({
         status:false,

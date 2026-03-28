@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --surface: #0e0e0e;
+  --surface-low: #131313;
+  --surface-container: #1a1919;
+  --surface-high: #202020;
+  --surface-highest: #262626;
+  --surface-bright: #2c2c2c;
+  --primary: #84adff;
+  --primary-deep: #007BFF;
+  --primary-dim: #5091ff;
+  --secondary: #fd8b00;
+  --on-primary: #002d64;
+  --on-surface: #ffffff;
+  --outline-variant: rgba(73, 72, 71, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(14, 14, 14, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-hover:hover {
+  background: rgba(14, 14, 14, 0.9);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-bright);
+  border-radius: 3px;
+}
+
+/* Glow utilities */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(132, 173, 255, 0.3), 0 0 60px rgba(132, 173, 255, 0.1);
+}
+.glow-orange {
+  box-shadow: 0 0 20px rgba(253, 139, 0, 0.3), 0 0 60px rgba(253, 139, 0, 0.1);
+}
+.text-glow-blue {
+  text-shadow: 0 0 30px rgba(132, 173, 255, 0.5);
+}
+
+/* Ambient glow on float elements */
+.ambient-glow {
+  box-shadow: 0 4px 60px rgba(255,255,255,0.04);
+}
+
+/* Gradient line */
+.gradient-line {
+  background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+  height: 1px;
+  width: 100%;
+}
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(135deg, #84adff, #6c9fff);
+  color: #002d64;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #5091ff, #84adff);
+  box-shadow: 0 0 0 10px rgba(80, 145, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Secondary (ghost) button */
+.btn-ghost {
+  background: transparent;
+  color: var(--on-surface);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  border: 1px solid rgba(73, 72, 71, 0.3);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-ghost:hover {
+  background: rgba(132, 173, 255, 0.08);
+  border-color: rgba(132, 173, 255, 0.3);
+}
+
+/* Feature card */
+.feature-card {
+  background: var(--surface-container);
+  border-radius: 1.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 40px rgba(132, 173, 255, 0.08), 0 0 0 1px rgba(132, 173, 255, 0.06);
+}
+
+/* FAQ card */
+.faq-card {
+  background: var(--surface-low);
+  border-radius: 1rem;
+  transition: background 0.25s ease;
+}
+.faq-card:hover {
+  background: var(--surface-container);
+}
+
+/* Precision label */
+.label-precision {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Particle canvas */
+#particle-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Future card hover */
+.future-card {
+  background: var(--surface-low);
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.future-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(132, 173, 255, 0.04) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.future-card:hover::before {
+  opacity: 1;
+}
+.future-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(132, 173, 255, 0.08);
+}
