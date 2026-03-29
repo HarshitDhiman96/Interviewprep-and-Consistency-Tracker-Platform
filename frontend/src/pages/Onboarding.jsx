@@ -46,7 +46,7 @@ export default function Onboarding() {
         {/* Header */}
         <h2 
           className="text-4xl md:text-5xl font-black mb-4 tracking-tight"
-          style={{ fontFamily: 'Manrope, sans-serif', color: '#fff' }}
+          style={{ fontFamily: 'Manrope, sans-serif', color: 'var(--on-surface)' }}
         >
           Define Your Path
         </h2>

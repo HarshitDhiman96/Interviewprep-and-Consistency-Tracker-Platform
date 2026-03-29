@@ -14,19 +14,23 @@ export default function ReturnToTop() {
 
     // Arrow "airplane" animation using GSAP
     if (arrowRef.current) {
-      const tl = gsap.timeline();
-      tl.to(arrowRef.current, {
-        y: -40,
+      gsap.to(arrowRef.current, {
+        y: -150,
+        x: 100,
         opacity: 0,
-        duration: 0.4,
-        ease: 'power2.in'
-      })
-      .set(arrowRef.current, { y: 40 })
-      .to(arrowRef.current, {
-        y: 0,
-        opacity: 1,
-        duration: 0.5,
-        ease: 'power2.out'
+        rotate: 45,
+        duration: 0.6,
+        ease: 'power2.in',
+        onComplete: () => {
+          gsap.to(arrowRef.current, {
+            y: 0,
+            x: 0,
+            opacity: 1,
+            rotate: 0, 
+            duration: 0.2,
+            delay: 0.2
+          });
+        }
       });
     }
   };
@@ -76,19 +80,15 @@ export default function ReturnToTop() {
 
         {/* Center Arrow */}
         <div ref={arrowRef} className="z-10 relative pointer-events-none group-hover:text-[#84adff] transition-colors">
-          <svg 
-            width="28" 
-            height="28" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <line x1="12" y1="19" x2="12" y2="5"></line>
-            <polyline points="5 12 12 5 19 12"></polyline>
-          </svg>
+            <svg 
+              className="w-7 h-7 transform -rotate-45"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
         </div>
       </button>
     </Magnet>

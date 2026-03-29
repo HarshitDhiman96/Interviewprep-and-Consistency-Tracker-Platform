@@ -77,38 +77,59 @@ const login = async (req, res) => {
 
 const changepassword=async(req,res)=>{
   try{
-    const {email,newpassword}=req.body;
-    //finds user with that name
-    const finduser=await user.findOne({email})
-    if(!finduser){
-      res.status(401).json({
+    const {email, oldpassword, newpassword}=req.body;
+
+    if(!email || !oldpassword || !newpassword){
+      return res.status(400).json({
         success:false,
-        message:"email didn't match in dbs"
+        message:"email, old password and new password are all required"
       })
     }
-    else{
-      //checks if old psswd is same as new one 
-      console.log(req.body,finduser.password)
-      const checkps= await bcrypt.compare(newpassword,finduser.password)
-      if(checkps){
-        res.status(401).json({
-          message:"old and new password can't be same "
-        })
-      }
-      else{
-        const salt = await bcrypt.genSalt(10);
-    const hashednewpsswd = await bcrypt.hash(newpassword, salt);
-    finduser.password=hashednewpsswd;
-    await finduser.save();
-    res.status(200).json({
-      messgae:"password changed successfully",
-      password:hashednewpsswd
-    })
-      }
+
+    // Find the user by email
+    const finduser=await user.findOne({email})
+    if(!finduser){
+      return res.status(404).json({
+        success:false,
+        message:"No account found with this email address"
+      })
     }
 
+    // Verify the old password is correct
+    const isOldPasswordValid = await bcrypt.compare(oldpassword, finduser.password)
+    if(!isOldPasswordValid){
+      return res.status(401).json({
+        success:false,
+        message:"Old password is incorrect"
+      })
+    }
+
+    // Ensure new password is different from old one
+    const isSamePassword = await bcrypt.compare(newpassword, finduser.password)
+    if(isSamePassword){
+      return res.status(400).json({
+        success:false,
+        message:"New password cannot be the same as the old password"
+      })
+    }
+
+    // Hash and save the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashednewpsswd = await bcrypt.hash(newpassword, salt);
+    finduser.password = hashednewpsswd;
+    await finduser.save();
+
+    return res.status(200).json({
+      success:true,
+      message:"Password changed successfully"
+    })
+
   }catch(e){
-    console.error("error while changing password try again later ",e);
+    console.error("error while changing password ",e);
+    return res.status(500).json({
+      success:false,
+      message:"Internal server error. Please try again later."
+    })
   }
 }
 

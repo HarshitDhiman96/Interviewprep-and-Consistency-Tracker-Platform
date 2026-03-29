@@ -24,13 +24,6 @@ const enhancements = [
     status: 'Planned Q4',
     statusColor: '#a8ff84',
   },
-  {
-    icon: <BarChart3 size={24} color="#84adff" />,
-    title: 'Predictive Performance Engine',
-    desc: 'ML model trained on thousands of interview outcomes predicts your offer probability and surfaces the highest-leverage areas to focus on.',
-    status: 'Research Phase',
-    statusColor: 'rgba(255,255,255,0.35)',
-  },
 ];
 
 const container = {
@@ -47,8 +40,7 @@ export default function FutureEnhancements() {
   return (
     <section
       id="roadmap"
-      className="py-28 px-6"
-      style={{ background: 'var(--surface)' }}
+      className="py-28 px-6 bg-zinc-50 dark:bg-[var(--surface)] transition-colors duration-300"
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -61,17 +53,16 @@ export default function FutureEnhancements() {
         >
           <p className="label-precision mb-3">PRODUCT ROADMAP</p>
           <h2
-            className="font-black mb-4"
+            className="font-black mb-4 text-zinc-950 dark:text-[var(--on-surface)]"
             style={{
               fontFamily: 'Manrope, sans-serif',
               fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
               letterSpacing: '-0.03em',
-              color: '#fff',
             }}
           >
             What's entering APEX
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', maxWidth: '540px' }}>
+          <p className="text-zinc-600 dark:text-[rgba(255,255,255,0.4)]" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', maxWidth: '540px' }}>
             We're building the future of preparation infrastructure. Here's what's on the horizon.
           </p>
         </motion.div>
@@ -82,30 +73,29 @@ export default function FutureEnhancements() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: '-60px' }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-5"
+          className="grid grid-cols-1 md:grid-cols-3 gap-5"
         >
           {enhancements.map((card) => (
-            <motion.div key={card.title} variants={item} className="future-card p-7">
+            <motion.div key={card.title} variants={item} className="p-7 relative overflow-hidden rounded-[1.5rem] bg-white shadow-lg shadow-zinc-200/50 border border-zinc-200 dark:bg-[var(--surface-low)] dark:border-transparent dark:shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_12px_40px_rgba(132,173,255,0.08)]">
               {/* Icon */}
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                style={{ background: 'var(--surface-container)' }}
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 bg-zinc-100 dark:bg-[var(--surface-container)] border border-zinc-200 dark:border-transparent"
               >
                 {card.icon}
               </div>
 
               {/* Title */}
               <h3
-                className="font-bold mb-2"
-                style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.125rem', color: '#fff' }}
+                className="font-bold mb-2 text-zinc-950 dark:text-[var(--on-surface)]"
+                style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.125rem' }}
               >
                 {card.title}
               </h3>
 
               {/* Description */}
               <p
-                className="mb-5"
-                style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', lineHeight: 1.75 }}
+                className="mb-5 text-zinc-600 dark:text-[rgba(255,255,255,0.4)]"
+                style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', lineHeight: 1.75 }}
               >
                 {card.desc}
               </p>

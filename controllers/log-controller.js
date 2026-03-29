@@ -141,4 +141,14 @@ const filterbyskills = async (req, res) => {
     }
 };
 
-module.exports = { addlog, dailylog, weeklog, filterbyskills }
+const getalllogs = async (req, res) => {
+    try {
+        const userID = req.user.id;
+        const allLogs = await log.find({ user: userID }).sort({ createdAt: -1 });
+        return res.status(200).json({ success: true, data: allLogs });
+    } catch (e) {
+        return res.status(500).json({ message: "error fetching all logs", success: false });
+    }
+};
+
+module.exports = { addlog, dailylog, weeklog, filterbyskills, getalllogs }

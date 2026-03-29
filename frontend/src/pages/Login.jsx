@@ -43,27 +43,21 @@ export default function Login() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center pt-32 px-6 relative z-10" style={{ background: 'var(--surface)' }}>
-      <motion.button onClick={() => navigate('/')} className="absolute top-8 left-8 flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors">
+    <section className="min-h-screen flex items-center justify-center pt-24 pb-12 px-6 relative z-10 bg-zinc-50 dark:bg-[#0e0e0e] transition-colors duration-300">
+      <button onClick={() => navigate('/')} className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-sm transition-colors z-[9999] cursor-pointer bg-transparent border-none text-zinc-500 hover:text-zinc-900 dark:text-white/50 dark:hover:text-white">
         <ArrowLeft size={16} /> Back to Home
-      </motion.button>
+      </button>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="w-full max-w-md p-8 md:p-10 rounded-3xl"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          backdropFilter: 'blur(24px) saturate(120%)',
-          border: '1px solid rgba(255,255,255,0.05)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-        }}
+        className="w-full max-w-md p-8 md:p-10 rounded-3xl bg-white border border-zinc-200 shadow-xl shadow-zinc-200/50 dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/5 dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black mb-2" style={{ fontFamily: 'Manrope, sans-serif', color: '#fff' }}>
+          <h1 className="text-3xl font-black mb-2 text-zinc-950 dark:text-[var(--on-surface)]" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Welcome Back
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-sm text-zinc-600 dark:text-[rgba(255,255,255,0.5)]" style={{ fontFamily: 'Inter, sans-serif' }}>
             Log in to continue your journey.
           </p>
         </div>
@@ -76,17 +70,15 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-1">
-            <label className="text-xs uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>Username or Email</label>
+            <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 dark:text-[rgba(255,255,255,0.3)]">Username or Email</label>
             <input
               type="text"
               name="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full py-2 bg-transparent border-b outline-none transition-all duration-300 focus:border-blue-500"
+              className="w-full py-2 bg-transparent border-b outline-none transition-all duration-300 border-zinc-300 text-zinc-950 focus:border-blue-500 dark:border-white/10 dark:text-[var(--on-surface)] dark:focus:border-blue-500"
               style={{
-                borderColor: 'rgba(255,255,255,0.1)',
-                color: '#fff',
                 fontFamily: 'Inter, sans-serif',
               }}
               placeholder="johndoe or you@example.com"
@@ -94,17 +86,15 @@ export default function Login() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>Password</label>
+            <label className="text-xs uppercase tracking-widest font-bold text-zinc-500 dark:text-[rgba(255,255,255,0.3)]">Password</label>
             <input
               type="password"
               name="password"
               required
               value={formData.password}
               onChange={handleChange}
-              className="w-full py-2 bg-transparent border-b outline-none transition-all duration-300 focus:border-blue-500"
+              className="w-full py-2 bg-transparent border-b outline-none transition-all duration-300 border-zinc-300 text-zinc-950 focus:border-blue-500 dark:border-white/10 dark:text-[var(--on-surface)] dark:focus:border-blue-500"
               style={{
-                borderColor: 'rgba(255,255,255,0.1)',
-                color: '#fff',
                 fontFamily: 'Inter, sans-serif',
               }}
               placeholder="••••••••"
@@ -125,7 +115,7 @@ export default function Login() {
           </SpotlightButton>
         </form>
 
-        <p className="text-center text-sm mt-8" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <p className="text-center text-sm mt-8 text-zinc-600 dark:text-[rgba(255,255,255,0.4)]">
           Don't have an account?{' '}
           <button onClick={() => navigate('/signup')} className="text-blue-400 hover:text-blue-300 transition-colors">
             Sign up

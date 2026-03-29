@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './index.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -9,26 +9,53 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
-import { SkillProvider } from './context/SkillContext';
+import Profile from './pages/Profile';
+import { SkillProvider, useSkillContext } from './context/SkillContext';
 import BackToTop from './components/BackToTop';
+import HeatmapTracker from './components/HeatmapTracker';
+import HeatmapCanvas from './components/HeatmapCanvas';
+
+const HeatmapWrapper = () => {
+  const { isHeatmapVisible } = useSkillContext();
+  return (
+    <>
+      <HeatmapTracker />
+      {isHeatmapVisible && <HeatmapCanvas />}
+    </>
+  );
+};
+
+// Routes that should NOT show the landing Navbar/Footer
+const DASHBOARD_ROUTES = ['/dashboard', '/profile', '/onboarding'];
+
+function AppLayout() {
+  const location = useLocation();
+  const isDashboardRoute = DASHBOARD_ROUTES.some(r => location.pathname.startsWith(r));
+
+  return (
+    <div style={{ background: 'var(--surface)', minHeight: '100vh', overflowX: 'hidden' }}>
+      <CursorFollower />
+      <HeatmapWrapper />
+      {!isDashboardRoute && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+      <BackToTop />
+      <Footer />
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <SkillProvider>
       <BrowserRouter>
-        <div style={{ background: 'var(--surface)', minHeight: '100vh', overflowX: 'hidden' }}>
-        <CursorFollower />
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-        <BackToTop />
-        <Footer />
-      </div>
+        <AppLayout />
       </BrowserRouter>
     </SkillProvider>
   );

@@ -31,8 +31,7 @@ export default function FAQ() {
   return (
     <section
       id="faq"
-      className="py-28 px-6"
-      style={{ background: 'var(--surface-low)' }}
+      className="py-28 px-6 bg-zinc-50 dark:bg-[var(--surface-low)] transition-colors duration-300"
     >
       <div className="max-w-3xl mx-auto">
         {/* Header */}
@@ -43,14 +42,13 @@ export default function FAQ() {
           transition={{ duration: 0.6 }}
           className="mb-14 text-center"
         >
-          <p className="label-precision mb-3">FAQ</p>
+          <p className="label-precision mb-3 text-zinc-600">FAQ</p>
           <h2
-            className="font-black"
+            className="font-black text-zinc-950 dark:text-[var(--on-surface)]"
             style={{
               fontFamily: 'Manrope, sans-serif',
               fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
               letterSpacing: '-0.03em',
-              color: '#fff',
             }}
           >
             Questions from APEX
@@ -58,7 +56,7 @@ export default function FAQ() {
         </motion.div>
 
         {/* FAQ Items */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
@@ -67,22 +65,21 @@ export default function FAQ() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.07, duration: 0.5 }}
             >
-              <div className="faq-card overflow-hidden">
+              <div className="overflow-hidden rounded-2xl bg-white shadow-sm shadow-zinc-200/50 border border-zinc-200 dark:bg-[var(--surface-low)] dark:border-transparent dark:shadow-none transition-all duration-300 hover:shadow-md dark:hover:bg-[var(--surface-container)]">
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-5 text-left gap-4"
+                  className="w-full flex items-center justify-between px-5 py-3 text-left gap-3"
                 >
                   <span
-                    className="font-semibold"
-                    style={{ fontFamily: 'Manrope, sans-serif', color: '#fff', fontSize: '0.9375rem' }}
+                    className="font-semibold text-zinc-950 dark:text-[var(--on-surface)]"
+                    style={{ fontFamily: 'Manrope, sans-serif', fontSize: '0.9375rem' }}
                   >
                     {faq.q}
                   </span>
                   <motion.span
                     animate={{ rotate: open === i ? 180 : 0 }}
                     transition={{ duration: 0.25 }}
-                    className="shrink-0"
-                    style={{ color: 'rgba(255,255,255,0.35)' }}
+                    className="shrink-0 text-zinc-500 dark:text-[rgba(255,255,255,0.35)]"
                   >
                     <ChevronDown size={18} />
                   </motion.span>
@@ -99,7 +96,7 @@ export default function FAQ() {
                     >
                       <div className="px-6 pb-5">
                         <div className="gradient-line mb-4" />
-                        <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', lineHeight: 1.8 }}>
+                        <p className="text-zinc-600 dark:text-[rgba(255,255,255,0.5)]" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', lineHeight: 1.8 }}>
                           {faq.a}
                         </p>
                       </div>

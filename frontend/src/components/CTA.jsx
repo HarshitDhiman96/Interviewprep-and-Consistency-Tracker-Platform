@@ -30,22 +30,21 @@ export default function CTA() {
             transition={{ duration: 0.7 }}
             className="p-12 flex flex-col justify-center"
           >
-            <p className="label-precision mb-4" style={{ color: 'rgba(132,173,255,0.6)' }}>
+            <p className="label-precision mb-4 text-zinc-600">
               JOIN 40,000+ HIGH PERFORMERS
             </p>
             <h2
-              className="font-black mb-4 leading-tight"
+              className="font-black mb-4 leading-tight text-zinc-950 dark:text-white"
               style={{
                 fontFamily: 'Manrope, sans-serif',
                 fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
                 letterSpacing: '-0.03em',
-                color: '#fff',
               }}
             >
               Ready to harness <br />
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #84adff, #6c9fff)',
+                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -54,8 +53,8 @@ export default function CTA() {
               </span>
             </h2>
             <p
-              className="mb-8"
-              style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', lineHeight: 1.75 }}
+              className="mb-8 text-zinc-600"
+              style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', lineHeight: 1.75 }}
             >
               Who are already using APEX to land their limits in months.
             </p>
@@ -69,7 +68,7 @@ export default function CTA() {
                 <Activity size={16} />
                 Get Started Free
               </motion.button>
-              <p className="label-precision" style={{ color: 'rgba(255,255,255,0.25)' }}>
+              <p className="label-precision text-zinc-500">
                 No credit card required.
               </p>
             </div>
@@ -81,10 +80,9 @@ export default function CTA() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative flex items-center justify-center min-h-64"
-            style={{ background: 'var(--surface-low)' }}
+            className="relative flex items-center justify-center min-h-64 bg-zinc-50 dark:bg-[var(--surface-high)] rounded-r-3xl transition-colors duration-300"
           >
-            {/* Layered radial sphere effect */}
+            {/* Layered radial sphere effect - Updated for Light Mode */}
             <div className="relative w-56 h-56 flex items-center justify-center">
               {/* Outer ring */}
               <motion.div
@@ -92,7 +90,7 @@ export default function CTA() {
                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                 className="absolute inset-0 rounded-full"
                 style={{
-                  border: '1px solid rgba(132,173,255,0.15)',
+                  border: '1px solid rgba(37, 99, 235, 0.15)',
                 }}
               />
               {/* Mid ring */}
@@ -102,7 +100,7 @@ export default function CTA() {
                 className="absolute rounded-full"
                 style={{
                   inset: '16px',
-                  border: '1px solid rgba(132,173,255,0.2)',
+                  border: '1px solid rgba(37, 99, 235, 0.2)',
                 }}
               />
               {/* Inner ring */}
@@ -112,23 +110,23 @@ export default function CTA() {
                 className="absolute rounded-full"
                 style={{
                   inset: '36px',
-                  border: '1px solid rgba(253,139,0,0.2)',
+                  border: '1px solid rgba(234, 88, 12, 0.2)',
                 }}
               />
               {/* Core glow */}
               <div
                 className="w-24 h-24 rounded-full"
                 style={{
-                  background: 'radial-gradient(ellipse, rgba(132,173,255,0.25) 0%, rgba(0,0,0,0) 70%)',
-                  boxShadow: '0 0 60px rgba(132,173,255,0.25), 0 0 120px rgba(132,173,255,0.1)',
+                  background: 'radial-gradient(ellipse, rgba(37, 99, 235, 0.2) 0%, transparent 70%)',
+                  boxShadow: '0 0 60px rgba(37, 99, 235, 0.2), 0 0 120px rgba(37, 99, 235, 0.1)',
                 }}
               />
               {/* Orbiting dot */}
               <motion.div
                 className="absolute w-2 h-2 rounded-full"
                 style={{
-                  background: 'var(--primary)',
-                  boxShadow: '0 0 10px var(--primary)',
+                  background: '#2563EB',
+                  boxShadow: '0 0 10px #2563EB',
                   left: '50%',
                   top: '0',
                   transformOrigin: '0px 112px',
@@ -139,8 +137,8 @@ export default function CTA() {
               <motion.div
                 className="absolute w-1.5 h-1.5 rounded-full"
                 style={{
-                  background: 'var(--secondary)',
-                  boxShadow: '0 0 8px var(--secondary)',
+                  background: '#EA580C',
+                  boxShadow: '0 0 8px #EA580C',
                   left: '50%',
                   top: '8%',
                   transformOrigin: '0px 90px',

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { MotionConfig, motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useSkillContext } from "../context/SkillContext";
+import { Activity } from "lucide-react";
 
 export const MobileNav = ({ navLinks }) => {
   const [active, setActive] = useState(false);
   const navigate = useNavigate();
+  const { isHeatmapVisible, setIsHeatmapVisible } = useSkillContext();
 
   const handleNavigate = (path) => {
     setActive(false);
@@ -77,6 +80,21 @@ export const MobileNav = ({ navLinks }) => {
                   {link.label}
                 </button>
               ))}
+              <hr className="border-white/10 my-4" />
+              <div className="flex items-center justify-between text-white/80">
+                 <span className="flex items-center gap-2 text-sm font-bold"><Activity size={16} color="#fd8b00" /> Heatmap Mode</span>
+                 <button 
+                    onClick={() => setIsHeatmapVisible(!isHeatmapVisible)}
+                    className="w-12 h-6 rounded-full relative transition-colors duration-300"
+                    style={{ background: isHeatmapVisible ? '#84adff' : 'rgba(255,255,255,0.1)' }}
+                 >
+                    <motion.div 
+                       className="w-5 h-5 bg-white rounded-full absolute top-0.5"
+                       animate={{ left: isHeatmapVisible ? "26px" : "2px" }}
+                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                 </button>
+              </div>
               <hr className="border-white/10 my-4" />
               <button
                 onClick={() => handleNavigate('/login')}

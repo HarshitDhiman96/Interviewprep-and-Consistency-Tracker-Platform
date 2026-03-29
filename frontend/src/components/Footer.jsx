@@ -14,9 +14,7 @@ const links = {
 export default function Footer() {
   return (
     <footer
-      // Changed to hex for testing; replace with var(--surface) once CSS is set
-      style={{ background: '#050505', borderTop: '1px solid rgba(255,255,255,0.04)' }}
-      className="px-6 pt-16 pb-8 w-full"
+      className="px-6 pt-16 pb-8 w-full bg-zinc-100 border-t border-zinc-200 dark:bg-[#050505] dark:border-white/5 transition-colors duration-300"
     >
       <div className="max-w-6xl mx-auto">
         <motion.div
@@ -32,19 +30,14 @@ export default function Footer() {
               fontFamily: 'Manrope, sans-serif',
               fontSize: 'clamp(3.5rem, 12vw, 8rem)',
               letterSpacing: '-0.04em',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(132,173,255,0.4) 50%, rgba(255,255,255,0.1) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              lineHeight: 1,
-              whiteSpace: 'nowrap'
             }}
           >
-            <img src={logoimg} alt="APEX Logo" className="w-[1em] h-[1em] object-contain inline-block drop-shadow-[0_0_15px_rgba(132,173,255,0.3)]" />
-            APEX
+            <img src={logoimg} alt="APEX Logo" className="w-[1em] h-[1em] object-contain inline-block drop-shadow-[0_0_15px_rgba(132,173,255,0.3)] dark:mix-blend-screen dark:invert-0 mix-blend-multiply invert" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-500">APEX</span>
           </h2>
           <p
-            className="max-w-sm text-sm"
-            style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'Inter, sans-serif', lineHeight: 1.6 }}
+            className="max-w-sm text-sm text-zinc-700"
+            style={{ fontFamily: 'Inter, sans-serif', lineHeight: 1.6 }}
           >
             Precision tools designed for those who demand the absolute maximum from their journey.
           </p>
@@ -54,7 +47,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
           {Object.entries(links).map(([category, items]) => (
             <div key={category}>
-              <p className="text-xs uppercase tracking-widest mb-6 font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              <p className="text-xs uppercase tracking-widest mb-6 font-bold text-zinc-700" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {category}
               </p>
               <ul className="flex flex-col gap-3">
@@ -62,8 +55,8 @@ export default function Footer() {
                   <li key={item}>
                     <a
                       href="#"
-                      className="text-sm transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
-                      style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'Inter, sans-serif' }}
+                      className="text-sm transition-all duration-200 text-zinc-700 hover:text-black hover:translate-x-1 inline-block dark:text-zinc-400 dark:hover:text-white"
+                      style={{ fontFamily: 'Inter, sans-serif' }}
                     >
                       {item}
                     </a>
@@ -75,7 +68,7 @@ export default function Footer() {
 
           {/* Social Icons Section */}
           <div>
-            <p className="text-xs uppercase tracking-widest mb-6 font-bold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            <p className="text-xs uppercase tracking-widest mb-6 font-bold text-zinc-700" style={{ fontFamily: 'Inter, sans-serif' }}>
               Connect
             </p>
             <div className="flex flex-col gap-4">
@@ -87,8 +80,7 @@ export default function Footer() {
                 <Magnet key={label}>
                   <a
                     href="#"
-                    className="flex w-fit items-center gap-3 text-sm transition-colors duration-200 hover:text-white"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                    className="flex w-fit items-center gap-3 text-sm transition-colors duration-200 text-zinc-700 hover:text-black dark:text-zinc-400 dark:hover:text-white"
                   >
                     <Icon size={16} />
                     {label}
@@ -99,18 +91,18 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 border-t border-white/5">
+        {/* Bottom Bar - Updated for Light Mode */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 border-t border-zinc-200 dark:border-white/5">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center">
-              <Zap size={14} className="text-blue-400" />
+            <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center">
+              <Zap size={14} className="text-blue-600" />
             </div>
-            <span className="text-xs font-medium tracking-tighter" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <span className="text-xs font-medium tracking-tighter text-zinc-700" style={{ fontFamily: 'Inter, sans-serif' }}>
               APEX
             </span>
           </div>
 
-          <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          <p className="text-[10px] uppercase tracking-widest text-zinc-600" style={{ fontFamily: 'Inter, sans-serif' }}>
             © {new Date().getFullYear()} APEX. All rights reserved.
           </p>
 
