@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { saveHeatmapClicks } from '../services/analyticsService';
 
 const HeatmapTracker = () => {
   const clickBuffer = useRef([]);
@@ -21,11 +22,7 @@ const HeatmapTracker = () => {
           const payload = [...clickBuffer.current];
           clickBuffer.current = [];
           
-          fetch('/api/analytics/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ clicks: payload })
-          }).catch(err => console.error('Failed to log heatmap clicks', err));
+          saveHeatmapClicks(payload).catch(err => console.error('Failed to log heatmap clicks', err));
         }
       }, 1000);
     };

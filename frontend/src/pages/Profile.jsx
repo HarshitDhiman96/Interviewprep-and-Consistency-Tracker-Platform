@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Shield, KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock } from 'lucide-react';
-import { changePassword as apiChangePassword } from '../services/api';
+import { KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock } from 'lucide-react';
+import { changePassword as apiChangePassword } from '../services/authService';
 
 // ── Encrypt-scramble button ───────────────────────────────
 const CHARS = '!@#$%^&*():{};|,.<>/?';
@@ -113,8 +113,12 @@ export default function Profile() {
     setFeedback(null);
 
     try {
-      const res = await apiChangePassword(formData.email, formData.oldpassword, formData.newpassword);
-      if (res.data?.success) {
+      const data = await apiChangePassword({
+        email: formData.email,
+        oldpassword: formData.oldpassword,
+        newpassword: formData.newpassword,
+      });
+      if (data?.success) {
         setFeedback({ type: 'success', message: 'Password changed successfully! Logging you out...' });
         setFormData((prev) => ({ ...prev, oldpassword: '', newpassword: '' }));
         setTimeout(() => {
@@ -122,10 +126,10 @@ export default function Profile() {
           navigate('/login');
         }, 2500);
       } else {
-        setFeedback({ type: 'error', message: res.data?.message || 'Something went wrong.' });
+        setFeedback({ type: 'error', message: data?.message || 'Something went wrong.' });
       }
     } catch (err) {
-      const msg = err.response?.data?.message || 'Network error. Please try again.';
+      const msg = err.message || 'Network error. Please try again.';
       setFeedback({ type: 'error', message: msg });
     } finally {
       setLoading(false);

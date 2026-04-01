@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Activity, ArrowLeft } from 'lucide-react';
 import SpotlightButton from '../components/SpotlightButton';
+import { registerUser } from '../services/authService';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -16,22 +17,18 @@ export default function Signup() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const data = await registerUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
       });
-
-      const data = await response.json();
-      if (data.success) {
+      if (data?.success) {
         setTimeout(() => navigate('/login'), 300);
       } else {
-        setError(data.message || 'Registration failed');
+        setError(data?.message || 'Registration failed');
       }
     } catch (err) {
-      setError('An error occurred during registration. Please try again.');
+      setError(err.message || 'An error occurred during registration. Please try again.');
     } finally {
       setLoading(false);
     }

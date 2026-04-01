@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, ArrowLeft } from 'lucide-react';
 import SpotlightButton from '../components/SpotlightButton';
+import { loginUser } from '../services/authService';
+import { fetchSkills } from '../services/skillsService';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,23 +18,19 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      if (data.success) {
+      const data = await loginUser({ email: formData.email, password: formData.password });
+      if (data?.success) {
         localStorage.setItem('token', data.accesstoken);
-        setTimeout(() => navigate('/onboarding'), 300);
+        // Dispatch storage event so Navbar updates auth state immediately
+        window.dispatchEvent(new Event('storage'));
+        const skillsData = await fetchSkills().catch(() => ({ skills: [] }));
+        const hasSkills = Array.isArray(skillsData?.skills) && skillsData.skills.length > 0;
+        setTimeout(() => navigate(hasSkills ? '/dashboard' : '/onboarding'), 300);
       } else {
-        setError(data.message || 'Login failed');
+        setError(data?.message || 'Login failed');
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      setError(err.message || 'An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }

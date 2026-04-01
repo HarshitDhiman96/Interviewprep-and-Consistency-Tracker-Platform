@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './index.css';
 import Navbar from './components/Navbar';
@@ -14,6 +14,15 @@ import { SkillProvider, useSkillContext } from './context/SkillContext';
 import BackToTop from './components/BackToTop';
 import HeatmapTracker from './components/HeatmapTracker';
 import HeatmapCanvas from './components/HeatmapCanvas';
+
+// ── Scroll to top on every route change ───────────────────────────
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname]);
+  return null;
+}
 
 const HeatmapWrapper = () => {
   const { isHeatmapVisible } = useSkillContext();
@@ -34,6 +43,7 @@ function AppLayout() {
 
   return (
     <div style={{ background: 'var(--surface)', minHeight: '100vh', overflowX: 'hidden' }}>
+      <ScrollToTop />
       <CursorFollower />
       <HeatmapWrapper />
       {!isDashboardRoute && <Navbar />}

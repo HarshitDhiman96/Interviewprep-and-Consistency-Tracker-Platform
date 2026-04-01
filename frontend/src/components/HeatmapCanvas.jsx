@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { fetchHeatmap } from '../services/analyticsService';
 
 const HeatmapCanvas = () => {
   const canvasRef = useRef(null);
@@ -25,9 +26,8 @@ const HeatmapCanvas = () => {
 
   useEffect(() => {
     // Fetch clicks for current page
-    fetch(`/api/analytics/heatmap?route=${encodeURIComponent(location.pathname)}`)
-      .then(res => res.json())
-      .then(data => {
+    fetchHeatmap(location.pathname)
+      .then((data) => {
         if (data.success && Array.isArray(data.data)) {
           setClicks(data.data);
         }

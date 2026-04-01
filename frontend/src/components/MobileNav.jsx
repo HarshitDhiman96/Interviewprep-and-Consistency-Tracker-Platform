@@ -1,16 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MotionConfig, motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSkillContext } from "../context/SkillContext";
-import { Activity } from "lucide-react";
+import { Activity, User, LayoutDashboard, LogOut } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 export const MobileNav = ({ navLinks }) => {
   const [active, setActive] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
   const navigate = useNavigate();
   const { isHeatmapVisible, setIsHeatmapVisible } = useSkillContext();
 
+  useEffect(() => {
+    const syncAuth = () => setIsAuthenticated(!!localStorage.getItem('token'));
+    window.addEventListener('storage', syncAuth);
+    return () => window.removeEventListener('storage', syncAuth);
+  }, []);
+
   const handleNavigate = (path) => {
     setActive(false);
+    if (!path.startsWith('#')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setTimeout(() => {
       if (path.startsWith('#')) {
         window.location.hash = path;
@@ -18,6 +29,13 @@ export const MobileNav = ({ navLinks }) => {
         navigate(path);
       }
     }, 300);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.dispatchEvent(new Event('storage'));
+    setActive(false);
+    navigate('/');
   };
 
   return (
@@ -81,6 +99,8 @@ export const MobileNav = ({ navLinks }) => {
                 </button>
               ))}
               <hr className="border-white/10 my-4" />
+              <ThemeToggle />
+              <hr className="border-white/10 my-4" />
               <div className="flex items-center justify-between text-white/80">
                  <span className="flex items-center gap-2 text-sm font-bold"><Activity size={16} color="#fd8b00" /> Heatmap Mode</span>
                  <button 
@@ -96,18 +116,46 @@ export const MobileNav = ({ navLinks }) => {
                  </button>
               </div>
               <hr className="border-white/10 my-4" />
-              <button
-                onClick={() => handleNavigate('/login')}
-                className="text-left text-lg font-bold text-white transition-colors hover:text-blue-400"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => handleNavigate('/signup')}
-                className="text-left text-lg font-bold text-[#84adff] transition-colors hover:text-blue-300"
-              >
-                Sign Up
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => handleNavigate('/dashboard')}
+                    className="text-left text-lg font-bold text-white transition-colors hover:text-blue-400 flex items-center gap-2"
+                  >
+                    <LayoutDashboard size={18} />
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/profile')}
+                    className="text-left text-lg font-bold text-white transition-colors hover:text-blue-400 flex items-center gap-2"
+                  >
+                    <User size={18} />
+                    Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="text-left text-lg font-bold text-red-300 transition-colors hover:text-red-200 flex items-center gap-2"
+                  >
+                    <LogOut size={18} />
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleNavigate('/login')}
+                    className="text-left text-lg font-bold text-white transition-colors hover:text-blue-400"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => handleNavigate('/signup')}
+                    className="text-left text-lg font-bold text-[#84adff] transition-colors hover:text-blue-300"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

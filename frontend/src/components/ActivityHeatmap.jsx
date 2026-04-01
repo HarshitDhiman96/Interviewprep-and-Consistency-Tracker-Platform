@@ -1,85 +1,158 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * Activity Calendar Heatmap
- * Renders a 52-week × 7-day GitHub-style contribution grid
- * derived from the user's daily logs.
- */
-export default function ActivityHeatmap({ dailyLogs = [] }) {
-  const WEEKS = 26; // 6 months of view
+const WEEKS = 26;
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const HEATMAP_COLORS = [
+  'bg-zinc-100 dark:bg-zinc-800/60',
+  'bg-blue-200 dark:bg-blue-900/60',
+  'bg-blue-400 dark:bg-blue-700',
+  'bg-blue-500 dark:bg-blue-500',
+  'bg-blue-700 dark:bg-blue-400',
+];
 
-  // Build a map: "YYYY-MM-DD" → count
+const getLocalDateKey = (value) => {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const formatWord = (value) =>
+  value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Unknown';
+
+export default function ActivityHeatmap({ dailyLogs = [] }) {
+  const [hoveredKey, setHoveredKey] = useState(null);
+
   const activityMap = useMemo(() => {
     const map = {};
-    dailyLogs.forEach(log => {
-      const d = new Date(log.createdAt || log.date);
-      if (isNaN(d)) return;
-      const key = d.toISOString().slice(0, 10);
-      map[key] = (map[key] || 0) + 1;
+
+    dailyLogs.forEach((log) => {
+      const key = getLocalDateKey(log.createdAt || log.date);
+
+      if (!key) {
+        return;
+      }
+
+      if (!map[key]) {
+        map[key] = {
+          count: 0,
+          totalTime: 0,
+          logs: [],
+        };
+      }
+
+      map[key].count += 1;
+      map[key].totalTime += Number(log.timespent || log.timeSpent || 0);
+      map[key].logs.push(log);
     });
+
     return map;
   }, [dailyLogs]);
 
-  // Build grid: last WEEKS weeks, Sunday-first
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Find the most recent Sunday
   const startDate = new Date(today);
-  startDate.setDate(today.getDate() - today.getDay()); // roll back to Sunday
-  startDate.setDate(startDate.getDate() - (WEEKS - 1) * 7); // go back WEEKS-1 more weeks
+  startDate.setDate(today.getDate() - today.getDay());
+  startDate.setDate(startDate.getDate() - (WEEKS - 1) * 7);
 
   const weeks = [];
-  for (let w = 0; w < WEEKS; w++) {
+  for (let weekIndex = 0; weekIndex < WEEKS; weekIndex += 1) {
     const week = [];
-    for (let d = 0; d < 7; d++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + w * 7 + d);
-      const key = date.toISOString().slice(0, 10);
-      const count = activityMap[key] || 0;
-      const isFuture = date > today;
-      week.push({ date, key, count, isFuture });
+
+    for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
+      const cellDate = new Date(startDate);
+      cellDate.setDate(startDate.getDate() + weekIndex * 7 + dayIndex);
+
+      const key = getLocalDateKey(cellDate);
+      const activity = key && activityMap[key] ? activityMap[key] : { count: 0, totalTime: 0, logs: [] };
+      const isFuture = cellDate > today;
+
+      week.push({
+        date: cellDate,
+        key,
+        activity,
+        isFuture,
+      });
     }
+
     weeks.push(week);
   }
 
-  // Month label positions
-  const monthLabels = [];
-  weeks.forEach((week, wi) => {
+  const monthLabels = weeks.map((week, index) => {
     const firstInWeek = week[0].date;
+
     if (firstInWeek.getDate() <= 7) {
-      monthLabels.push({
+      return {
+        col: index,
         label: firstInWeek.toLocaleString('default', { month: 'short' }),
-        col: wi,
-      });
+      };
     }
+
+    return null;
   });
-
-  const getColor = (count, isFuture) => {
-    if (isFuture) return '';
-    if (count === 0) return 'bg-zinc-100 dark:bg-zinc-800/60';
-    if (count === 1) return 'bg-blue-200 dark:bg-blue-900/60';
-    if (count === 2) return 'bg-blue-400 dark:bg-blue-700';
-    if (count === 3) return 'bg-blue-500 dark:bg-blue-500';
-    return 'bg-blue-700 dark:bg-blue-400';
-  };
-
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const totalActiveDays = Object.keys(activityMap).length;
   const totalLogs = dailyLogs.length;
+  const todayKey = getLocalDateKey(today);
+  const activeKey = hoveredKey || (todayKey && activityMap[todayKey] ? todayKey : null);
+  const highlightedDay = activeKey
+    ? {
+        key: activeKey,
+        activity: activityMap[activeKey] || { count: 0, totalTime: 0, logs: [] },
+        date: new Date(`${activeKey}T00:00:00`),
+      }
+    : null;
+
+  const getColor = (count, isFuture) => {
+    if (isFuture) {
+      return '';
+    }
+
+    if (count <= 0) {
+      return HEATMAP_COLORS[0];
+    }
+
+    if (count === 1) {
+      return HEATMAP_COLORS[1];
+    }
+
+    if (count === 2) {
+      return HEATMAP_COLORS[2];
+    }
+
+    if (count === 3) {
+      return HEATMAP_COLORS[3];
+    }
+
+    return HEATMAP_COLORS[4];
+  };
+
+  const handleHover = (key, isFuture) => {
+    if (isFuture || !key) {
+      return;
+    }
+
+    setHoveredKey((current) => (current === key ? current : key));
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="p-6 md:p-8 rounded-[32px] transition-colors duration-300"
+      className="p-6 md:p-8 rounded-[32px] transition-colors duration-300 overflow-hidden"
       style={{ background: 'var(--surface-container)' }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6 mb-8">
         <div>
           <h3
             className="text-xl font-black text-zinc-900 dark:text-white"
@@ -88,29 +161,78 @@ export default function ActivityHeatmap({ dailyLogs = [] }) {
             Activity Heatmap
           </h3>
           <p className="text-xs mt-0.5 text-zinc-500 dark:text-zinc-400">
-            {totalActiveDays} active days &nbsp;·&nbsp; {totalLogs} total logs
+            {totalActiveDays} active days · {totalLogs} total logs
           </p>
         </div>
-        {/* Legend */}
-        <div className="hidden sm:flex items-center gap-1.5">
-          <span className="text-xs text-zinc-400 dark:text-zinc-500 mr-1">Less</span>
-          {['bg-zinc-100 dark:bg-zinc-800/60', 'bg-blue-200 dark:bg-blue-900/60', 'bg-blue-400 dark:bg-blue-700', 'bg-blue-500 dark:bg-blue-500', 'bg-blue-700 dark:bg-blue-400'].map((c, i) => (
-            <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
-          ))}
-          <span className="text-xs text-zinc-400 dark:text-zinc-500 ml-1">More</span>
+
+        <div className="xl:w-[360px] min-h-[228px] rounded-3xl p-4 bg-zinc-100/90 dark:bg-white/5 border border-zinc-200 dark:border-white/10">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+              Hover Details
+            </span>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">Less</span>
+              {HEATMAP_COLORS.map((color) => (
+                <div key={color} className={`w-3 h-3 rounded-sm ${color}`} />
+              ))}
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">More</span>
+            </div>
+          </div>
+
+          {highlightedDay ? (
+            <div className="space-y-3">
+              <div>
+                <p className="font-semibold text-zinc-900 dark:text-white">
+                  {highlightedDay.date.toLocaleDateString(undefined, {
+                    weekday: 'long',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {highlightedDay.activity.count} log{highlightedDay.activity.count > 1 ? 's' : ''} · {highlightedDay.activity.totalTime}h invested
+                </p>
+              </div>
+
+              <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+                {highlightedDay.activity.logs.map((log) => (
+                  <div
+                    key={log._id || `${log.topic}-${log.createdAt || log.date}`}
+                    className="rounded-2xl px-3 py-2 bg-white/70 dark:bg-white/5"
+                  >
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                      {log.topic}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {log.skill} · {formatWord(log.status)} · {formatWord(log.difficulty)} · {log.timespent || log.timeSpent}h
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Hover a day to inspect the logs submitted on that date.
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full">
-          {/* Month labels */}
-          <div className="flex mb-1 ml-8">
-            {weeks.map((week, wi) => {
-              const label = monthLabels.find(m => m.col === wi);
+      <div className="w-full">
+        <div className="grid grid-cols-[42px_minmax(0,1fr)] gap-3 mb-3">
+          <div />
+          <div
+            className="grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${WEEKS}, minmax(0, 1fr))` }}
+          >
+            {weeks.map((_, weekIndex) => {
+              const label = monthLabels.find((item) => item?.col === weekIndex);
+
               return (
-                <div key={wi} className="flex-shrink-0" style={{ width: 16, marginRight: 3 }}>
+                <div key={`label-${weekIndex}`} className="min-w-0">
                   {label ? (
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
+                    <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
                       {label.label}
                     </span>
                   ) : null}
@@ -118,48 +240,49 @@ export default function ActivityHeatmap({ dailyLogs = [] }) {
               );
             })}
           </div>
+        </div>
 
-          {/* Grid: day labels + cells */}
-          <div className="flex">
-            {/* Day labels */}
-            <div className="flex flex-col gap-[3px] mr-2 mt-0.5">
-              {dayLabels.map((d, i) => (
-                <div key={d} className="h-[14px] flex items-center">
-                  {i % 2 === 1 ? (
-                    <span className="text-[9px] text-zinc-400 dark:text-zinc-600 w-6 text-right pr-0.5 leading-none">
-                      {d.slice(0, 3)}
-                    </span>
-                  ) : (
-                    <span className="w-6" />
-                  )}
-                </div>
-              ))}
-            </div>
+        <div className="grid grid-cols-[42px_minmax(0,1fr)] gap-3 items-stretch">
+          <div className="grid grid-rows-7 gap-2">
+            {DAY_LABELS.map((day, index) => (
+              <div key={day} className="flex items-center h-full">
+                {index % 2 === 1 ? (
+                  <span className="text-[10px] md:text-xs text-zinc-400 dark:text-zinc-500 leading-none">
+                    {day}
+                  </span>
+                ) : null}
+              </div>
+            ))}
+          </div>
 
-            {/* Weeks */}
-            <div className="flex gap-[3px]">
-              {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[3px]">
-                  {week.map(({ date, key, count, isFuture }) => (
-                    <div
-                      key={key}
-                      title={
-                        isFuture
-                          ? ''
-                          : count === 0
-                          ? `${key} — No activity`
-                          : `${key} — ${count} log${count > 1 ? 's' : ''}`
-                      }
-                      className={`w-[14px] h-[14px] rounded-sm transition-all duration-150 hover:ring-2 hover:ring-blue-400 hover:ring-offset-1 cursor-default ${
-                        isFuture
-                          ? 'bg-transparent'
-                          : getColor(count, isFuture)
-                      }`}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
+          <div
+            className="grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${WEEKS}, minmax(0, 1fr))` }}
+          >
+            {weeks.map((week, weekIndex) => (
+              <div key={`week-${weekIndex}`} className="grid grid-rows-7 gap-2">
+                {week.map(({ key, activity, isFuture }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onMouseEnter={() => handleHover(key, isFuture)}
+                    onFocus={() => handleHover(key, isFuture)}
+                    className={`w-full aspect-square rounded-[0.7rem] transition-colors duration-150 border ${
+                      isFuture
+                        ? 'bg-transparent border-transparent cursor-default'
+                        : `${getColor(activity.count, isFuture)} border-white/40 dark:border-white/5 hover:ring-2 hover:ring-blue-300 dark:hover:ring-blue-400`
+                    }`}
+                    title={
+                      isFuture
+                        ? ''
+                        : activity.count === 0
+                          ? `${key} - No activity`
+                          : `${key} - ${activity.count} log${activity.count > 1 ? 's' : ''}`
+                    }
+                  />
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

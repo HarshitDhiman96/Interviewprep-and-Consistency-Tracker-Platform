@@ -63,4 +63,35 @@ const mongoose=require("mongoose");
   }
 };
 
-module.exports={addRevision,getRevisions};
+const deleteRevision = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { revisionId } = req.params;
+
+    const deletedRevision = await Revision.findOneAndDelete({
+      _id: revisionId,
+      user: userId,
+    });
+
+    if (!deletedRevision) {
+      return res.status(404).json({
+        success: false,
+        message: 'Revision topic not found',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Revision removed from the queue',
+      revision: deletedRevision,
+    });
+  } catch (error) {
+    console.error('Error deleting revision:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to remove revision',
+    });
+  }
+};
+
+module.exports={addRevision,getRevisions,deleteRevision};
