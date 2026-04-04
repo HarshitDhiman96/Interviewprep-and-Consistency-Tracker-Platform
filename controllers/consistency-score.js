@@ -66,9 +66,16 @@ const mongoose=require("mongoose");
 
     const { firstDate, lastDate } = dateRange[0];
 
-    // Step 3: Calculate total days
-    const diffTime = new Date(lastDate) - new Date(firstDate);
-    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    // Step 3: Calculate total days using calendar dates, not raw timestamps.
+    // This keeps multiple logs on the same day from inflating the date span.
+    const normalizedFirstDate = new Date(firstDate);
+    const normalizedLastDate = new Date(lastDate);
+
+    normalizedFirstDate.setHours(0, 0, 0, 0);
+    normalizedLastDate.setHours(0, 0, 0, 0);
+
+    const diffTime = normalizedLastDate - normalizedFirstDate;
+    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
     // Step 4: Calculate consistency
     const consistency = Math.round((activeDays / totalDays) * 100);

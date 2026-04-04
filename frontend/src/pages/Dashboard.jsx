@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import ActivityHeatmap from '../components/ActivityHeatmap';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSkillContext } from '../context/SkillContext';
-import { clearSessionToken, hasActiveSession } from '../services/sessionService';
+import { useAuth } from '../context/AuthContext';
 
 const STATUS_OPTIONS = ['Solved', 'Stuck', 'Revised'];
 const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
@@ -63,6 +63,7 @@ const formatDate = (value) => {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { isAuthenticated, authLoading, logout } = useAuth();
   const {
     skills,
     selectedSkills,
@@ -102,10 +103,10 @@ export default function Dashboard() {
   const [formMessage, setFormMessage] = useState('');
 
   useEffect(() => {
-    if (!hasActiveSession()) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (!celebration) {
@@ -159,8 +160,7 @@ export default function Dashboard() {
   const skillOptions = useMemo(() => selectedSkills, [selectedSkills]);
 
   const handleLogout = () => {
-    clearSessionToken();
-    navigate('/');
+    logout().finally(() => navigate('/'));
   };
 
   const handleAddLog = async (event) => {

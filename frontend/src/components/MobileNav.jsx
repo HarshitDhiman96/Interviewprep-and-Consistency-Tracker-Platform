@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MotionConfig, motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSkillContext } from "../context/SkillContext";
 import { Activity, User, LayoutDashboard, LogOut } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
-import { clearSessionToken, hasActiveSession, subscribeToSessionChanges } from "../services/sessionService";
+import { useAuth } from "../context/AuthContext";
 
 export const MobileNav = ({ navLinks }) => {
   const [active, setActive] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(() => hasActiveSession());
   const navigate = useNavigate();
   const { isHeatmapVisible, setIsHeatmapVisible } = useSkillContext();
-
-  useEffect(() => {
-    setIsAuthenticated(hasActiveSession());
-    return subscribeToSessionChanges(setIsAuthenticated);
-  }, []);
+  const { isAuthenticated, logout } = useAuth();
 
   const handleNavigate = (path) => {
     setActive(false);
@@ -32,9 +27,8 @@ export const MobileNav = ({ navLinks }) => {
   };
 
   const handleLogout = () => {
-    clearSessionToken();
     setActive(false);
-    navigate('/');
+    logout().finally(() => navigate('/'));
   };
 
   return (

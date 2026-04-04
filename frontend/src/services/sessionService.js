@@ -1,57 +1,36 @@
 const AUTH_CHANGE_EVENT = 'authchange';
+const REMEMBER_ME_PREFERENCE_KEY = 'remember_me_preference';
 
-const decodeTokenPayload = (token) => {
-  try {
-    const payload = token.split('.')[1];
+let authSnapshot = false;
 
-    if (!payload) {
-      return null;
-    }
+export const getRememberMePreference = () => localStorage.getItem(REMEMBER_ME_PREFERENCE_KEY) === 'true';
 
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(normalized));
-  } catch {
-    return null;
-  }
+export const setRememberMePreference = (rememberMe) => {
+  localStorage.setItem(REMEMBER_ME_PREFERENCE_KEY, String(Boolean(rememberMe)));
 };
 
-export const getSessionToken = () => localStorage.getItem('token');
+export const getAuthSnapshot = () => authSnapshot;
 
-export const hasActiveSession = () => {
-  const token = getSessionToken();
-
-  if (!token) {
-    return false;
-  }
-
-  const payload = decodeTokenPayload(token);
-
-  if (!payload?.exp) {
-    return true;
-  }
-
-  const isExpired = payload.exp * 1000 <= Date.now();
-
-  if (isExpired) {
-    localStorage.removeItem('token');
-    return false;
-  }
-
-  return true;
-};
-
-export const setSessionToken = (token) => {
-  localStorage.setItem('token', token);
-  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
-};
-
-export const clearSessionToken = () => {
-  localStorage.removeItem('token');
-  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+export const notifySessionChange = (isAuthenticated) => {
+  authSnapshot = Boolean(isAuthenticated);
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGE_EVENT, {
+    detail: { isAuthenticated: authSnapshot },
+  }));
 };
 
 export const subscribeToSessionChanges = (listener) => {
-  const handleChange = () => listener(hasActiveSession());
+  const handleChange = (event) => {
+    if (event.type === 'storage' && event.key && event.key !== REMEMBER_ME_PREFERENCE_KEY) {
+      return;
+    }
+
+    if (event.type === AUTH_CHANGE_EVENT) {
+      listener(Boolean(event.detail?.isAuthenticated));
+      return;
+    }
+
+    listener(authSnapshot);
+  };
 
   window.addEventListener('storage', handleChange);
   window.addEventListener(AUTH_CHANGE_EVENT, handleChange);

@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchConsistency, fetchSkillProgress, fetchWeakAreas, fetchWeeklyProgress } from '../services/analyticsService';
 import { addLog, fetchAllLogs, fetchDailyLog, fetchWeekLog, filterLogsBySkill } from '../services/logService';
-import { addRevision, deleteRevision, fetchRevisions } from '../services/revisionService';
+import { deleteRevision, fetchRevisions } from '../services/revisionService';
 import { addSkill, deleteSkill, fetchSkills } from '../services/skillsService';
 import { fetchStreak } from '../services/streakService';
-import { getSessionToken, subscribeToSessionChanges } from '../services/sessionService';
+import { subscribeToSessionChanges } from '../services/sessionService';
 
 const SkillContext = createContext();
 
@@ -24,6 +24,7 @@ const getCurrentWeekRange = () => {
 };
 
 const isEmptyStateError = (error) => error?.status === 400 || error?.status === 404;
+const isUnauthorizedError = (error) => error?.status === 401;
 
 export function SkillProvider({ children }) {
   const dashboardRequestRef = useRef(0);
@@ -78,14 +79,8 @@ export function SkillProvider({ children }) {
   }, []);
 
   const refreshDashboard = useCallback(async () => {
-    const token = getSessionToken();
     const requestId = dashboardRequestRef.current + 1;
     dashboardRequestRef.current = requestId;
-
-    if (!token) {
-      resetDashboardState();
-      return;
-    }
 
     setLoading(true);
     setError('');
@@ -118,9 +113,27 @@ export function SkillProvider({ children }) {
       fetchWeekLog(weekRange),
     ]);
 
-    const sessionChanged = dashboardRequestRef.current !== requestId || getSessionToken() !== token;
+    const sessionChanged = dashboardRequestRef.current !== requestId;
 
     if (sessionChanged) {
+      return;
+    }
+
+    const results = [
+      skillsResult,
+      streakResult,
+      consistencyResult,
+      progressResult,
+      logsResult,
+      velocityResult,
+      weakAreasResult,
+      revisionsResult,
+      todayResult,
+      weekResult,
+    ];
+
+    if (results.some((result) => result.status === 'rejected' && isUnauthorizedError(result.reason))) {
+      resetDashboardState();
       return;
     }
 
@@ -204,9 +217,7 @@ export function SkillProvider({ children }) {
   }, [resetDashboardState]);
 
   const refreshFilteredLogs = useCallback(async (skillName) => {
-    const token = getSessionToken();
-
-    if (!token || !skillName) {
+    if (!skillName) {
       setFilteredLogs([]);
       return;
     }
@@ -215,6 +226,11 @@ export function SkillProvider({ children }) {
       const data = await filterLogsBySkill(skillName);
       setFilteredLogs(data.data || []);
     } catch (serviceError) {
+      if (isUnauthorizedError(serviceError)) {
+        setFilteredLogs([]);
+        return;
+      }
+
       if (isEmptyStateError(serviceError)) {
         setFilteredLogs([]);
         return;

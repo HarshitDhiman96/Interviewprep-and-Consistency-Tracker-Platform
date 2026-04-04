@@ -3,13 +3,13 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { LogIn, ArrowLeft } from 'lucide-react';
 import SpotlightButton from '../components/SpotlightButton';
-import { loginUser } from '../services/authService';
 import { fetchSkills } from '../services/skillsService';
-import { setSessionToken } from '../services/sessionService';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const { login, rememberMePreference } = useAuth();
+  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: rememberMePreference });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,9 +19,12 @@ export default function Login() {
     setError('');
 
     try {
-      const data = await loginUser({ email: formData.email, password: formData.password });
+      const data = await login({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+      });
       if (data?.success) {
-        setSessionToken(data.accesstoken);
         const skillsData = await fetchSkills().catch(() => ({ skills: [] }));
         const hasSkills = Array.isArray(skillsData?.skills) && skillsData.skills.length > 0;
         setTimeout(() => navigate(hasSkills ? '/dashboard' : '/onboarding'), 300);
@@ -97,6 +100,19 @@ export default function Login() {
               placeholder="••••••••"
             />
           </div>
+
+          <label className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-200 px-4 py-3 text-sm text-zinc-700 dark:border-white/10 dark:text-white/70">
+            <span>
+              Keep me signed in for 7 days
+            </span>
+            <input
+              type="checkbox"
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={(event) => setFormData((prev) => ({ ...prev, rememberMe: event.target.checked }))}
+              className="h-4 w-4 accent-blue-500"
+            />
+          </label>
 
           <SpotlightButton
             type="submit"

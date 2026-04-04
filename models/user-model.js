@@ -24,6 +24,10 @@ const userschema = new mongoose.Schema({
         enum: ["user", "admin"],
         default: "user"
     },
+    rememberMe: {
+        type: Boolean,
+        default: false
+    },
     skills: [{
         name: {
             type: String,

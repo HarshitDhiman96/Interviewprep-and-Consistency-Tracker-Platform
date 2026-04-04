@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearSessionToken, getSessionToken } from './sessionService';
+import { notifySessionChange } from './sessionService';
 
 const resolveApiBaseUrl = () => {
   if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
@@ -15,23 +15,11 @@ const resolveApiBaseUrl = () => {
 
 const apiClient = axios.create({
   baseURL: resolveApiBaseUrl(),
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = getSessionToken();
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -39,8 +27,8 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
-      clearSessionToken();
-      console.error('Unauthorized API request. Check the stored session token.');
+      notifySessionChange(false);
+      console.error('Unauthorized API request. Cookie-based session is missing or expired.');
     } else if (status >= 500) {
       console.error('Backend server error:', error.response?.data || error.message);
     } else {

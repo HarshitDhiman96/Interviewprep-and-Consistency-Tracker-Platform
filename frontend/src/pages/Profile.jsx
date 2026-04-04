@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock } from 'lucide-react';
 import { changePassword as apiChangePassword } from '../services/authService';
-import { clearSessionToken, getSessionToken } from '../services/sessionService';
+import { useAuth } from '../context/AuthContext';
 
 // ── Encrypt-scramble button ───────────────────────────────
 const CHARS = '!@#$%^&*():{};|,.<>/?';
@@ -68,40 +68,33 @@ function EncryptButton({ targetText, disabled, loading }) {
   );
 }
 
-function decodeToken(token) {
-  try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
-  }
-}
-
 export default function Profile() {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
+  const { user, isAuthenticated, authLoading, logout, setRememberMe } = useAuth();
+  const [rememberMeEnabled, setRememberMeEnabled] = useState(false);
 
   // Change password form state
   const [formData, setFormData] = useState({ email: '', oldpassword: '', newpassword: '' });
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rememberLoading, setRememberLoading] = useState(false);
   const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', message: '' }
 
   useEffect(() => {
-    const token = getSessionToken();
-    if (!token) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!user) {
       return;
     }
-    const decoded = decodeToken(token);
-    if (!decoded) {
-      navigate('/login');
-      return;
-    }
-    setUserData(decoded);
-    setFormData((prev) => ({ ...prev, email: decoded.useremail || '' }));
-  }, [navigate]);
+
+    setRememberMeEnabled(Boolean(user.rememberMe));
+    setFormData((prev) => ({ ...prev, email: user.email || '' }));
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -123,8 +116,7 @@ export default function Profile() {
         setFeedback({ type: 'success', message: 'Password changed successfully! Logging you out...' });
         setFormData((prev) => ({ ...prev, oldpassword: '', newpassword: '' }));
         setTimeout(() => {
-          clearSessionToken();
-          navigate('/login');
+          logout().finally(() => navigate('/login'));
         }, 2500);
       } else {
         setFeedback({ type: 'error', message: data?.message || 'Something went wrong.' });
@@ -137,7 +129,31 @@ export default function Profile() {
     }
   };
 
-  if (!userData) {
+  const handleRememberMeToggle = async () => {
+    const nextValue = !rememberMeEnabled;
+    setRememberLoading(true);
+    setFeedback(null);
+
+    try {
+      const data = await setRememberMe(nextValue);
+      setRememberMeEnabled(nextValue);
+      setFeedback({
+        type: 'success',
+        message: data?.message || (nextValue
+          ? 'Remember me enabled. Your cookie now lasts for 7 days.'
+          : 'Remember me disabled. Your cookie now uses the shorter session window.'),
+      });
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        message: err.message || 'Unable to update your remember me preference.',
+      });
+    } finally {
+      setRememberLoading(false);
+    }
+  };
+
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#0e0e0e]">
         <div className="flex flex-col items-center gap-3">
@@ -179,13 +195,52 @@ export default function Profile() {
               className="text-3xl font-black leading-tight text-zinc-950 dark:text-white"
               style={{ fontFamily: 'Manrope, sans-serif', letterSpacing: '-0.03em' }}
             >
-              {userData.username || 'APEX User'}
+              {user.name || 'APEX User'}
             </h1>
-            <p className="text-sm mt-1 text-zinc-500 dark:text-white/40">{userData.useremail}</p>
+            <p className="text-sm mt-1 text-zinc-500 dark:text-white/40">{user.email}</p>
             <span className="inline-block mt-3 text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-              {userData.role || 'Member'}
+              {user.role || 'Member'}
             </span>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="rounded-3xl p-8 bg-white border border-zinc-200 shadow-lg shadow-zinc-100/50 dark:bg-white/5 dark:border-white/8 dark:shadow-none"
+        >
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <h2
+                className="text-xl font-black text-zinc-950 dark:text-white"
+                style={{ fontFamily: 'Manrope, sans-serif' }}
+              >
+                Remember Me
+              </h2>
+              <p className="text-sm mt-1 text-zinc-500 dark:text-white/40">
+                Keep your login cookie active for 7 days on this device instead of the shorter default session window.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleRememberMeToggle}
+              disabled={rememberLoading}
+              className="w-14 h-8 rounded-full relative transition-colors duration-300 disabled:opacity-60"
+              style={{ background: rememberMeEnabled ? '#84adff' : 'rgba(148, 163, 184, 0.45)' }}
+            >
+              <motion.div
+                className="w-6 h-6 bg-white rounded-full absolute top-1"
+                animate={{ left: rememberMeEnabled ? '30px' : '2px' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </button>
+          </div>
+          <p className="text-xs mt-4 text-zinc-500 dark:text-white/35">
+            {rememberMeEnabled
+              ? 'Enabled: this browser will keep your signed-in cookie for up to 7 days.'
+              : 'Disabled: the app will use the shorter cookie lifetime instead.'}
+          </p>
         </motion.div>
 
         {/* Change Password Card */}

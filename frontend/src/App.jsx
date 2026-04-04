@@ -11,6 +11,7 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import { SkillProvider, useSkillContext } from './context/SkillContext';
+import { AuthProvider } from './context/AuthContext';
 import BackToTop from './components/BackToTop';
 import HeatmapTracker from './components/HeatmapTracker';
 import HeatmapCanvas from './components/HeatmapCanvas';
@@ -63,10 +64,12 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <SkillProvider>
-      <BrowserRouter>
-        <AppLayout />
-      </BrowserRouter>
-    </SkillProvider>
+    <AuthProvider>
+      <SkillProvider>
+        <BrowserRouter>
+          <AppLayout />
+        </BrowserRouter>
+      </SkillProvider>
+    </AuthProvider>
   );
 }
