@@ -1,9 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchConsistency, fetchSkillProgress, fetchWeakAreas, fetchWeeklyProgress } from '../services/analyticsService';
 import { addLog, fetchAllLogs, fetchDailyLog, fetchWeekLog, filterLogsBySkill } from '../services/logService';
 import { addRevision, deleteRevision, fetchRevisions } from '../services/revisionService';
 import { addSkill, deleteSkill, fetchSkills } from '../services/skillsService';
 import { fetchStreak } from '../services/streakService';
+import { getSessionToken, subscribeToSessionChanges } from '../services/sessionService';
 
 const SkillContext = createContext();
 
@@ -25,6 +26,7 @@ const getCurrentWeekRange = () => {
 const isEmptyStateError = (error) => error?.status === 400 || error?.status === 404;
 
 export function SkillProvider({ children }) {
+  const dashboardRequestRef = useRef(0);
   const [skills, setSkills] = useState([]);
   const [streak, setStreak] = useState(0);
   const [dailyLogs, setDailyLogs] = useState([]);
@@ -55,6 +57,7 @@ export function SkillProvider({ children }) {
   );
 
   const resetDashboardState = useCallback(() => {
+    dashboardRequestRef.current += 1;
     setSkills([]);
     setStreak(0);
     setDailyLogs([]);
@@ -71,10 +74,13 @@ export function SkillProvider({ children }) {
     setActionError('');
     setCelebration(null);
     setPageToast(null);
+    setLoading(false);
   }, []);
 
   const refreshDashboard = useCallback(async () => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
+    const requestId = dashboardRequestRef.current + 1;
+    dashboardRequestRef.current = requestId;
 
     if (!token) {
       resetDashboardState();
@@ -83,6 +89,7 @@ export function SkillProvider({ children }) {
 
     setLoading(true);
     setError('');
+    setActionError('');
 
     const today = new Date().toISOString();
     const weekRange = getCurrentWeekRange();
@@ -111,6 +118,12 @@ export function SkillProvider({ children }) {
       fetchWeekLog(weekRange),
     ]);
 
+    const sessionChanged = dashboardRequestRef.current !== requestId || getSessionToken() !== token;
+
+    if (sessionChanged) {
+      return;
+    }
+
     if (skillsResult.status === 'fulfilled') {
       const nextSkills = skillsResult.value.skills || [];
       setSkills(nextSkills);
@@ -127,6 +140,8 @@ export function SkillProvider({ children }) {
 
     if (streakResult.status === 'fulfilled') {
       setStreak(streakResult.value.currentStreak ?? 0);
+    } else if (!isEmptyStateError(streakResult.reason)) {
+      setError(streakResult.reason.message);
     }
 
     if (consistencyResult.status === 'fulfilled') {
@@ -135,6 +150,8 @@ export function SkillProvider({ children }) {
         activeDays: consistencyResult.value.activeDays ?? 0,
         totalDays: consistencyResult.value.totalDays ?? 0,
       });
+    } else if (!isEmptyStateError(consistencyResult.reason)) {
+      setError(consistencyResult.reason.message);
     }
 
     if (progressResult.status === 'fulfilled') {
@@ -187,7 +204,7 @@ export function SkillProvider({ children }) {
   }, [resetDashboardState]);
 
   const refreshFilteredLogs = useCallback(async (skillName) => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
 
     if (!token || !skillName) {
       setFilteredLogs([]);
@@ -211,6 +228,15 @@ export function SkillProvider({ children }) {
   useEffect(() => {
     refreshDashboard();
   }, [refreshDashboard]);
+
+  useEffect(() => subscribeToSessionChanges((isAuthenticated) => {
+    if (isAuthenticated) {
+      refreshDashboard();
+      return;
+    }
+
+    resetDashboardState();
+  }), [refreshDashboard, resetDashboardState]);
 
   useEffect(() => {
     refreshFilteredLogs(activeSkillFilter);

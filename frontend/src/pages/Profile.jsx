@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock } from 'lucide-react';
 import { changePassword as apiChangePassword } from '../services/authService';
+import { clearSessionToken, getSessionToken } from '../services/sessionService';
 
 // ── Encrypt-scramble button ───────────────────────────────
 const CHARS = '!@#$%^&*():{};|,.<>/?';
@@ -88,7 +89,7 @@ export default function Profile() {
   const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', message: '' }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
     if (!token) {
       navigate('/login');
       return;
@@ -122,7 +123,7 @@ export default function Profile() {
         setFeedback({ type: 'success', message: 'Password changed successfully! Logging you out...' });
         setFormData((prev) => ({ ...prev, oldpassword: '', newpassword: '' }));
         setTimeout(() => {
-          localStorage.removeItem('token');
+          clearSessionToken();
           navigate('/login');
         }, 2500);
       } else {

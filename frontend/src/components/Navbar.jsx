@@ -4,6 +4,7 @@ import { User, Settings, UserCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MobileNav from './MobileNav';
 import ThemeToggle from './ThemeToggle';
+import { clearSessionToken, hasActiveSession, subscribeToSessionChanges } from '../services/sessionService';
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -13,7 +14,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => hasActiveSession());
   const navigate = useNavigate();
 
   const handleNavigate = (path) => {
@@ -25,21 +26,20 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    clearSessionToken();
     setIsAuthenticated(false);
     setProfileOpen(false);
     navigate('/');
   };
 
   useEffect(() => {
-    const checkAuth = () => setIsAuthenticated(!!localStorage.getItem('token'));
-    checkAuth();
-    window.addEventListener('storage', checkAuth);
+    setIsAuthenticated(hasActiveSession());
+    const unsubscribe = subscribeToSessionChanges(setIsAuthenticated);
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('storage', checkAuth);
+      unsubscribe();
     };
   }, []);
 

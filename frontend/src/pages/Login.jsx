@@ -5,6 +5,7 @@ import { LogIn, ArrowLeft } from 'lucide-react';
 import SpotlightButton from '../components/SpotlightButton';
 import { loginUser } from '../services/authService';
 import { fetchSkills } from '../services/skillsService';
+import { setSessionToken } from '../services/sessionService';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,9 +21,7 @@ export default function Login() {
     try {
       const data = await loginUser({ email: formData.email, password: formData.password });
       if (data?.success) {
-        localStorage.setItem('token', data.accesstoken);
-        // Dispatch storage event so Navbar updates auth state immediately
-        window.dispatchEvent(new Event('storage'));
+        setSessionToken(data.accesstoken);
         const skillsData = await fetchSkills().catch(() => ({ skills: [] }));
         const hasSkills = Array.isArray(skillsData?.skills) && skillsData.skills.length > 0;
         setTimeout(() => navigate(hasSkills ? '/dashboard' : '/onboarding'), 300);

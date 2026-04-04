@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearSessionToken, getSessionToken } from './sessionService';
 
 const resolveApiBaseUrl = () => {
   if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
@@ -21,7 +22,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,6 +39,7 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
+      clearSessionToken();
       console.error('Unauthorized API request. Check the stored session token.');
     } else if (status >= 500) {
       console.error('Backend server error:', error.response?.data || error.message);

@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import ActivityHeatmap from '../components/ActivityHeatmap';
 import ThemeToggle from '../components/ThemeToggle';
 import { useSkillContext } from '../context/SkillContext';
+import { clearSessionToken, hasActiveSession } from '../services/sessionService';
 
 const STATUS_OPTIONS = ['Solved', 'Stuck', 'Revised'];
 const DIFFICULTY_OPTIONS = ['Easy', 'Medium', 'Hard'];
@@ -101,6 +102,12 @@ export default function Dashboard() {
   const [formMessage, setFormMessage] = useState('');
 
   useEffect(() => {
+    if (!hasActiveSession()) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     if (!celebration) {
       return undefined;
     }
@@ -152,8 +159,7 @@ export default function Dashboard() {
   const skillOptions = useMemo(() => selectedSkills, [selectedSkills]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.dispatchEvent(new Event('storage'));
+    clearSessionToken();
     navigate('/');
   };
 
