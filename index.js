@@ -57,7 +57,8 @@ app.use('/api/revision',revision);
 
  //app.get("/api/analytics/heatmap",authMiddleware,heatmap);  
 
-const port=process.env.port
-app.listen(port,()=>{
-    console.log(`port is running at ${port}`);
-})
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
