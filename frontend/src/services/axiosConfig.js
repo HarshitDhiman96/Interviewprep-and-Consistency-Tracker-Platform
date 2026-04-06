@@ -1,24 +1,14 @@
 import axios from 'axios';
 import { notifySessionChange } from './sessionService';
-
-const resolveApiBaseUrl = () => {
-  if (globalThis.process?.env?.REACT_APP_API_URL) {
-    return globalThis.process.env.REACT_APP_API_URL;
-  }
-
-  if (import.meta.env?.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  return '/';
-};
+import { API_BASE_URL } from './apiConfig';
 
 const apiClient = axios.create({
-  baseURL: resolveApiBaseUrl(),
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000,
 });
 
 apiClient.interceptors.response.use(
@@ -31,6 +21,10 @@ apiClient.interceptors.response.use(
       console.error('Unauthorized API request. Cookie-based session is missing or expired.');
     } else if (status >= 500) {
       console.error('Backend server error:', error.response?.data || error.message);
+    } else if (error.code === 'ECONNABORTED') {
+      console.error('API request timed out:', error.message);
+    } else if (!error.response) {
+      console.error('Network error while contacting backend:', error.message);
     } else {
       console.error('API request failed:', error.response?.data || error.message);
     }
