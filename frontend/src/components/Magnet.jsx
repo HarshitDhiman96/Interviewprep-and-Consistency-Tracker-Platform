@@ -19,6 +19,7 @@ export default function Magnet({ children, padding = 100, disabled = false }) {
     setPosition({ x: 0, y: 0 });
   };
 
+  void padding;
   const { x, y } = position;
   return (
     <motion.div

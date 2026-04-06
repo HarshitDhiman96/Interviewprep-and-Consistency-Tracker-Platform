@@ -2,8 +2,8 @@ import axios from 'axios';
 import { notifySessionChange } from './sessionService';
 
 const resolveApiBaseUrl = () => {
-  if (typeof process !== 'undefined' && process.env?.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
+  if (globalThis.process?.env?.REACT_APP_API_URL) {
+    return globalThis.process.env.REACT_APP_API_URL;
   }
 
   if (import.meta.env?.VITE_API_URL) {

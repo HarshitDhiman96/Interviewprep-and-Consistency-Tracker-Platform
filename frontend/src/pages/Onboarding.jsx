@@ -77,7 +77,6 @@ export default function Onboarding() {
 
       for (const skill of pendingSkills) {
         if (!normalizedExisting.has(skill.trim().toLowerCase())) {
-          // eslint-disable-next-line no-await-in-loop
           await createSkill(skill);
         }
       }

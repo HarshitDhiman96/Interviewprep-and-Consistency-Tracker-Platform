@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 
 const DrawOutlineButton = ({ children, className = "", onClick, ...rest }) => {
   return (

@@ -1,59 +1,33 @@
-const Streak= require("../models/streak_model")
+const Streak = require("../models/streak_model");
+const { calculateNextStreakState } = require("./streak-logic");
 
 const updateStreak = async (userId) => {
   try {
-    // console.log(userId);
-    // Normalize today's date
-    let today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const streak = await Streak.findOne({ userId });
+    const nextState = calculateNextStreakState({ existingStreak: streak, today: new Date() });
 
-    // Yesterday
-    let yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    // Find streak
-    let streak = await Streak.findOne({ userId });
-
-    // 🆕 First time user
-    if (!streak) {
+    if (nextState.shouldCreate) {
       await Streak.create({
         userId,
-        currentStreak: 1,
-        longestStreak: 1,
-        lastActiveDate: today
+        currentStreak: nextState.currentStreak,
+        longestStreak: nextState.longestStreak,
+        lastActiveDate: nextState.lastActiveDate
       });
       return;
     }
 
-    let lastDate = new Date(streak.lastActiveDate);
-    lastDate.setHours(0, 0, 0, 0);
-
-    // ❗ Same day → do nothing
-    if (lastDate.getTime() === today.getTime()) {
+    if (!nextState.changed) {
       return;
     }
 
-    // ✅ Yesterday → increase streak
-    if (lastDate.getTime() === yesterday.getTime()) {
-      streak.currentStreak += 1;
-    } 
-    // ❌ Gap → reset
-    else {
-      streak.currentStreak = 1;
-    }
-
-    // Update longest streak
-    if (streak.currentStreak > streak.longestStreak) {
-      streak.longestStreak = streak.currentStreak;
-    }
-
-    // Update last active date
-    streak.lastActiveDate = today;
+    streak.currentStreak = nextState.currentStreak;
+    streak.longestStreak = nextState.longestStreak;
+    streak.lastActiveDate = nextState.lastActiveDate;
 
     await streak.save();
-
   } catch (error) {
     console.error("Error updating streak:", error);
   }
 };
-module.exports=updateStreak;
+
+module.exports = updateStreak;

@@ -10,14 +10,37 @@ const streakroutes = require('./routes/streak-routes');
 const authMiddleware = require('./middleware/auth-middleware');
 const analytics=require("./routes/analytics");
 const revision=require("./routes/revision-route");
-
+const { isOriginAllowed } = require('./utils/cors-utils');
 
 const app=express();
+
+const corsMiddleware = (req, res, next) => {
+    const requestOrigin = req.headers.origin;
+
+    if (!requestOrigin) {
+        return next();
+    }
+
+    if (isOriginAllowed(requestOrigin)) {
+        res.header("Access-Control-Allow-Origin", requestOrigin);
+        res.header("Vary", "Origin");
+        res.header("Access-Control-Allow-Credentials", "true");
+        res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+        res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    }
+
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(204);
+    }
+
+    next();
+};
 
 //database
 db.connection();
 
 //middleware
+app.use(corsMiddleware);
 app.use(express.json());
 app.use(cookieParser());
 

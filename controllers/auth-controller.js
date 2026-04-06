@@ -1,18 +1,9 @@
 const bcrypt = require('bcrypt')
 const jwttoken = require("jsonwebtoken")
 const user = require('../models/user-model')
+const { getCookieOptions } = require('../utils/cookie-utils')
 
 const COOKIE_NAME = "token";
-const TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
-const SEVEN_DAYS_IN_MS = 7 * 24 * 60 * 60 * 1000;
-
-const getCookieOptions = (rememberMe = false) => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  path: "/",
-  ...(rememberMe ? { maxAge: SEVEN_DAYS_IN_MS } : { maxAge: TWO_HOURS_IN_MS })
-});
 
 const buildAccessToken = (loginuser, rememberMe = false) => (
   jwttoken.sign({
@@ -135,10 +126,8 @@ const me = async (req, res) => {
 const logout = async (req, res) => {
   try {
     res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/"
+      ...getCookieOptions(false),
+      maxAge: undefined
     });
 
     return res.status(200).json({
