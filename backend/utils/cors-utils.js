@@ -1,7 +1,9 @@
+const normalizeOrigin = (origin = "") => origin.trim().replace(/\/+$/, "");
+
 const getAllowedOrigins = (env = process.env) =>
   (env.CLIENT_URLS || env.CLIENT_URL || "")
     .split(",")
-    .map((origin) => origin.trim())
+    .map(normalizeOrigin)
     .filter(Boolean);
 
 const isOriginAllowed = (origin, env = process.env) => {
@@ -9,10 +11,11 @@ const isOriginAllowed = (origin, env = process.env) => {
     return false;
   }
 
-  return getAllowedOrigins(env).includes(origin);
+  return getAllowedOrigins(env).includes(normalizeOrigin(origin));
 };
 
 module.exports = {
+  normalizeOrigin,
   getAllowedOrigins,
   isOriginAllowed
 };

@@ -6,7 +6,7 @@ const {
   resolveCookieSecure,
   getCookieOptions
 } = require("../utils/cookie-utils");
-const { getAllowedOrigins, isOriginAllowed } = require("../utils/cors-utils");
+const { normalizeOrigin, getAllowedOrigins, isOriginAllowed } = require("../utils/cors-utils");
 const { normalizeDate, calculateNextStreakState } = require("../utils/streak-logic");
 
 const tests = [
@@ -78,6 +78,18 @@ const tests = [
     }
   },
   {
+    name: "normalizes trailing slashes in configured origins",
+    run: () => {
+      assert.equal(normalizeOrigin("https://frontend.example.com///"), "https://frontend.example.com");
+      assert.deepEqual(
+        getAllowedOrigins({
+          CLIENT_URLS: "https://frontend.example.com/, https://www.frontend.example.com///"
+        }),
+        ["https://frontend.example.com", "https://www.frontend.example.com"]
+      );
+    }
+  },
+  {
     name: "allows configured origins and blocks others",
     run: () => {
       const env = { CLIENT_URLS: "https://frontend.example.com,https://www.frontend.example.com" };
@@ -85,6 +97,17 @@ const tests = [
       assert.equal(isOriginAllowed("https://frontend.example.com", env), true);
       assert.equal(isOriginAllowed("https://www.frontend.example.com", env), true);
       assert.equal(isOriginAllowed("https://evil.example.com", env), false);
+    }
+  },
+  {
+    name: "matches origins even when the request origin includes a trailing slash",
+    run: () => {
+      assert.equal(
+        isOriginAllowed("https://frontend.example.com/", {
+          CLIENT_URLS: "https://frontend.example.com"
+        }),
+        true
+      );
     }
   },
   {
