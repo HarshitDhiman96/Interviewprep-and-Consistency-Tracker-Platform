@@ -7,6 +7,11 @@ The system is split into:
 - A Node.js + Express backend for authentication, business logic, analytics, and MongoDB persistence
 - A React + Vite frontend for onboarding, dashboarding, profile management, and interactive visualizations
 
+## Live Deployment
+
+- Frontend: `https://celebrated-donut-9a3bb7.netlify.app/`
+- Backend: `https://interviewprep-and-consistency-tracker.onrender.com`
+
 ## Core Features
 
 - User registration, login, and password change
@@ -283,6 +288,32 @@ Main fields:
 └── README.md
 ```
 
+Current layout after deployment split:
+
+```text
+.
+|-- backend/
+|   |-- controllers/
+|   |-- database/
+|   |-- middleware/
+|   |-- models/
+|   |-- routes/
+|   |-- test/
+|   |-- utils/
+|   |-- index.js
+|   `-- package.json
+|-- frontend/
+|   |-- public/
+|   `-- src/
+|       |-- assets/
+|       |-- components/
+|       |-- context/
+|       |-- pages/
+|       `-- services/
+|-- netlify.toml
+`-- README.md
+```
+
 ## Packages, Libraries, and Technologies Used
 
 ### Backend Technologies
@@ -319,7 +350,7 @@ Main fields:
 
 ## Installed Dependencies
 
-### Root `package.json`
+### `backend/package.json`
 
 - `bcrypt`
 - `dotenv`
@@ -356,9 +387,13 @@ Dev dependencies:
 
 The backend expects these environment variables:
 
-- `port`
+- `PORT`
 - `mongooseurl`
 - `jwtkey`
+- `CLIENT_URLS`
+- `COOKIE_SAME_SITE`
+- `COOKIE_SECURE`
+- `NODE_ENV`
 
 The frontend also supports:
 
@@ -366,11 +401,31 @@ The frontend also supports:
 
 If `VITE_API_URL` is not provided, the Vite dev server proxy forwards `/api` requests to `http://localhost:4000`.
 
+### Production Values
+
+Backend on Render:
+
+- `CLIENT_URLS=http://localhost:5173,https://celebrated-donut-9a3bb7.netlify.app`
+- `COOKIE_SAME_SITE=none`
+- `COOKIE_SECURE=true`
+- `NODE_ENV=production`
+
+Frontend on Netlify:
+
+- `VITE_API_URL=https://interviewprep-and-consistency-tracker.onrender.com`
+
+### CORS and Cross-Site Auth
+
+- Allow `https://celebrated-donut-9a3bb7.netlify.app` in the backend CORS config.
+- Cross-site cookies require `COOKIE_SAME_SITE=none` and `COOKIE_SECURE=true`.
+- The frontend calls the backend with credentials enabled, so the backend must return both `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials`.
+
 ## Running the Project
 
 ### Backend
 
 ```bash
+cd backend
 npm install
 npm run dev
 ```
@@ -388,4 +443,4 @@ npm run dev
 - The backend currently uses MongoDB Atlas via Mongoose.
 - Most dashboard analytics are computed dynamically from the `log` collection.
 - Streaks are not manually edited; they are updated automatically when logs are added.
-- The project currently does not include automated tests in the root `package.json`.
+- Backend tests can be run from `backend/` with `npm test`.
