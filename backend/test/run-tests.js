@@ -6,7 +6,12 @@ const {
   resolveCookieSecure,
   getCookieOptions
 } = require("../utils/cookie-utils");
-const { normalizeOrigin, getAllowedOrigins, isOriginAllowed } = require("../utils/cors-utils");
+const {
+  DEFAULT_ALLOWED_ORIGINS,
+  normalizeOrigin,
+  getAllowedOrigins,
+  isOriginAllowed
+} = require("../utils/cors-utils");
 const { normalizeDate, calculateNextStreakState } = require("../utils/streak-logic");
 
 const tests = [
@@ -61,18 +66,21 @@ const tests = [
   {
     name: "supports a single allowed origin",
     run: () => {
-      assert.deepEqual(getAllowedOrigins({ CLIENT_URL: "https://frontend.example.com" }), [
-        "https://frontend.example.com"
-      ]);
+      assert.deepEqual(
+        getAllowedOrigins({ CLIENT_URL: "https://frontend.example.com" }),
+        [...DEFAULT_ALLOWED_ORIGINS, "https://frontend.example.com"]
+      );
     }
   },
   {
     name: "supports multiple comma-separated origins",
     run: () => {
+      const origins = getAllowedOrigins({
+        CLIENT_URLS: "https://a.example.com, https://b.example.com ,https://c.example.com"
+      });
+
       assert.deepEqual(
-        getAllowedOrigins({
-          CLIENT_URLS: "https://a.example.com, https://b.example.com ,https://c.example.com"
-        }),
+        origins.slice(-3),
         ["https://a.example.com", "https://b.example.com", "https://c.example.com"]
       );
     }
@@ -81,11 +89,22 @@ const tests = [
     name: "normalizes trailing slashes in configured origins",
     run: () => {
       assert.equal(normalizeOrigin("https://frontend.example.com///"), "https://frontend.example.com");
-      assert.deepEqual(
-        getAllowedOrigins({
-          CLIENT_URLS: "https://frontend.example.com/, https://www.frontend.example.com///"
-        }),
-        ["https://frontend.example.com", "https://www.frontend.example.com"]
+      const origins = getAllowedOrigins({
+        CLIENT_URLS: "https://frontend.example.com/, https://www.frontend.example.com///"
+      });
+
+      assert.deepEqual(origins.slice(-2), [
+        "https://frontend.example.com",
+        "https://www.frontend.example.com"
+      ]);
+    }
+  },
+  {
+    name: "always includes the deployed frontend as a fallback allowed origin",
+    run: () => {
+      assert.equal(
+        isOriginAllowed("https://celebrated-donut-9a3bb7.netlify.app", {}),
+        true
       );
     }
   },
