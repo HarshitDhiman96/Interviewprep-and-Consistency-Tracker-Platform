@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const {
   TWO_HOURS_IN_MS,
   SEVEN_DAYS_IN_MS,
+  isProductionLike,
   resolveCookieSameSite,
   resolveCookieSecure,
   getCookieOptions
@@ -19,6 +20,21 @@ const tests = [
     name: "defaults cookie sameSite to lax",
     run: () => {
       assert.equal(resolveCookieSameSite({}), "lax");
+    }
+  },
+  {
+    name: "detects production-like cookie environments",
+    run: () => {
+      assert.equal(isProductionLike({}), false);
+      assert.equal(isProductionLike({ NODE_ENV: "production" }), true);
+      assert.equal(isProductionLike({ COOKIE_SECURE: "true" }), true);
+      assert.equal(isProductionLike({ RENDER: "true" }), true);
+    }
+  },
+  {
+    name: "defaults production cookies to cross-site compatible sameSite",
+    run: () => {
+      assert.equal(resolveCookieSameSite({ NODE_ENV: "production" }), "none");
     }
   },
   {
@@ -54,7 +70,7 @@ const tests = [
   {
     name: "builds a remember-me cookie",
     run: () => {
-      const options = getCookieOptions(true, { COOKIE_SAME_SITE: "none" });
+      const options = getCookieOptions(true, { NODE_ENV: "production" });
 
       assert.equal(options.httpOnly, true);
       assert.equal(options.secure, true);

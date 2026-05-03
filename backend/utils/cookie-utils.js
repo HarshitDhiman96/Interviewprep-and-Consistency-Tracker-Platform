@@ -1,11 +1,20 @@
 const TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
 const SEVEN_DAYS_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
+const isProductionLike = (env = process.env) =>
+  env.NODE_ENV === "production" ||
+  env.COOKIE_SECURE === "true" ||
+  Boolean(env.RENDER || env.RENDER_EXTERNAL_URL);
+
 const resolveCookieSameSite = (env = process.env) => {
-  const sameSite = (env.COOKIE_SAME_SITE || "lax").toLowerCase();
+  const sameSite = (env.COOKIE_SAME_SITE || "").toLowerCase();
 
   if (sameSite === "strict" || sameSite === "lax" || sameSite === "none") {
     return sameSite;
+  }
+
+  if (isProductionLike(env)) {
+    return "none";
   }
 
   return "lax";
@@ -32,6 +41,7 @@ const getCookieOptions = (rememberMe = false, env = process.env) => ({
 module.exports = {
   TWO_HOURS_IN_MS,
   SEVEN_DAYS_IN_MS,
+  isProductionLike,
   resolveCookieSameSite,
   resolveCookieSecure,
   getCookieOptions
