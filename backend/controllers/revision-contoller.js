@@ -1,3 +1,11 @@
+// Ye controller revision queue manage karta hai.
+// Jab user kisi skill/topic ko revise karta hai, addRevision pehle check karta hai
+// ki same skill aur topic already exist karta hai ya nahi.
+// Agar exist karta hai to revisionCount badhta hai aur lastRevisedAt update hota hai.
+// Agar pehli baar hai to naya revision record create hota hai.
+// getRevisions user ke revisions count ke hisaab se sorted laata hai,
+// aur deleteRevision sirf logged-in user ka selected revision remove karta hai.
+
 const Revision =require("../models/revision-model");
 const mongoose=require("mongoose");
 

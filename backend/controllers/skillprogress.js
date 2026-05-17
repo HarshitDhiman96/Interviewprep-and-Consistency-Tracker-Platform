@@ -1,3 +1,9 @@
+// Ye controller skill-wise progress calculate karta hai.
+// User ke logs ko skill ke naam se group karta hai.
+// Har skill ke liye total logs aur total time spent calculate hota hai.
+// Result most practiced skill first order me aata hai,
+// taaki dashboard par pata chale kis skill par zyada kaam hua hai.
+
 const Log=require("../models/logs-model")
 const mongoose=require("mongoose");
 

@@ -15,6 +15,7 @@ import { AuthProvider } from './context/AuthContext';
 import BackToTop from './components/BackToTop';
 import HeatmapTracker from './components/HeatmapTracker';
 import HeatmapCanvas from './components/HeatmapCanvas';
+import InconsistencyReasonPopup from './components/InconsistencyReasonPopup';
 
 // ── Scroll to top on every route change ───────────────────────────
 function ScrollToTop() {
@@ -56,6 +57,7 @@ function AppLayout() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+      <InconsistencyReasonPopup />
       <BackToTop />
       <Footer />
     </div>

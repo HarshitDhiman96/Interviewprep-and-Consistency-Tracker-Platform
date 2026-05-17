@@ -1,3 +1,9 @@
+// Ye controller frontend clicks ko heatmap ke liye save karta hai.
+// User login ho ya na ho, clicks save ho sakte hain; login user ho to user id bhi attach hoti hai.
+// saveClick multiple clicks ek saath database me insert karta hai.
+// getHeatmap kisi specific route/page ke saved clicks fetch karta hai,
+// taaki frontend/admin dekh sake user page par kaha click kar rahe hain.
+
 const Heatmap = require('../models/heatmap-model');
 
 const saveClick = async (req, res) => {

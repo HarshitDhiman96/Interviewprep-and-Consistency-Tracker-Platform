@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const routes=require("./routes/auth-routes")
 const skillsroutes=require("./routes/skillsroutes")
 const logroutes=require('./routes/log-routes')
+const inconsistencyReasonRoutes = require('./routes/inconsistency-reason-routes')
 const db=require('./database/db');
 const streakroutes = require('./routes/streak-routes');
  //const heatmap=require("./controllers/heat-map-controller");
@@ -49,6 +50,7 @@ app.get("/",(req,res)=>{
     res.json("Home Page with basic route")
 })
 app.use("/api/auth",routes);
+app.use("/api/inconsistency-reason", inconsistencyReasonRoutes);
 app.use("/api/skills",skillsroutes);
 app.use("/api/log",logroutes)
 app.use("/api/streak",streakroutes)

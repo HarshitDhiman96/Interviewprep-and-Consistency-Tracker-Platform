@@ -1,3 +1,9 @@
+// Ye controller user ka weekly progress summary banata hai.
+// Logs ko ISO week aur year ke hisaab se group karta hai.
+// Har week ke liye total logs aur total time spent calculate hota hai.
+// Data oldest week se latest week order me return hota hai,
+// taaki chart/dashboard weekly progress dikha sake.
+
 const Log = require("../models/logs-model");
 const mongoose = require("mongoose");
 

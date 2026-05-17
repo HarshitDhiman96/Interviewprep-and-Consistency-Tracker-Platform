@@ -1,3 +1,10 @@
+// Ye controller weak areas detect karta hai.
+// User ke logs ko skill aur topic ke combination par group karta hai.
+// Har group me total logs, solved count aur stuck count calculate hota hai.
+// Topic weak tab maana gaya hai jab practice 3 logs se kam ho,
+// ya stuck count solved count se zyada ho.
+// Final response me sirf weak skill/topic list bheji jaati hai.
+
 const Log=require("../models/logs-model")
 const mongoose=require("mongoose");
 

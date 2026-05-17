@@ -1,3 +1,9 @@
+// Ye controller user ke skills manage karta hai.
+// addskill logged-in user ke profile me naya active skill add karta hai.
+// fetchskill sirf active skills return karta hai, taaki UI me deleted/inactive skills na dikhein.
+// deleteskill selected skill ko user's skills list se remove karta hai.
+// Saare operations logged-in user ke data par hi hote hain.
+
 const user = require('../models/user-model')
 
 const addskill = async (req, res) => {

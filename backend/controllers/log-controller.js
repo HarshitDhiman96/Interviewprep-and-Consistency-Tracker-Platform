@@ -1,3 +1,10 @@
+// Ye controller daily study/practice logs manage karta hai.
+// addlog logged-in user ke liye skill, topic, status, difficulty aur time spent save karta hai.
+// Log save hone ke baad streak update hota hai, kyunki new activity count honi chahiye.
+// dailylog kisi ek date ke logs laata hai, weeklog date range ke logs laata hai.
+// filterbyskills selected skill ke logs fetch karta hai.
+// getalllogs user ke saare logs latest first order me return karta hai.
+
 const log = require('../models/logs-model')
 const updateStreak=require("../utils/streak-utils")
 

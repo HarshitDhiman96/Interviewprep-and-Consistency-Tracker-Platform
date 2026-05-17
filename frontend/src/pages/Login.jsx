@@ -25,6 +25,11 @@ export default function Login() {
         rememberMe: formData.rememberMe,
       });
       if (data?.success) {
+        if (data?.needsInconsistencyReason) {
+          setTimeout(() => navigate('/dashboard'), 300);
+          return;
+        }
+
         const skillsData = await fetchSkills().catch(() => ({ skills: [] }));
         const hasSkills = Array.isArray(skillsData?.skills) && skillsData.skills.length > 0;
         setTimeout(() => navigate(hasSkills ? '/dashboard' : '/onboarding'), 300);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Target, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { BrainCircuit, Flame, Target, AlertTriangle, ArrowUpRight } from 'lucide-react';
 
 const features = [
   {
@@ -24,6 +24,14 @@ const features = [
     desc:
       'Flag sessions as "Stuck" and let the system identify systemic bottlenecks in your workflow before they compound.',
     badge: { text: '↗ NEEDS FOCUS', color: '#EF4444' },
+  },
+  {
+    icon: <BrainCircuit size={22} color="#7C3AED" />,
+    label: 'AI-Powered Consistency Insights',
+    desc:
+      'We help you understand why you lose consistency and guide you to improve using intelligent insights.',
+    badge: null,
+    cta: true,
   },
 ];
 
@@ -95,7 +103,7 @@ export default function Features() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: '-80px' }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
         >
           {features.map((f) => (
             <motion.div key={f.label} variants={item} className="p-7 flex flex-col gap-4 rounded-[1.25rem] bg-white shadow-lg shadow-zinc-200/50 border border-zinc-200 dark:bg-[var(--surface-container)] dark:border-transparent dark:shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-200/80 dark:hover:shadow-[0_8px_40px_rgba(37,99,235,0.08),0_0_0_1px_rgba(37,99,235,0.06)]">
@@ -152,10 +160,17 @@ export default function Features() {
 
               {/* Learn more arrow  */}
               {!f.badge && !f.progress && (
-                <div className="mt-auto flex items-center gap-1 text-sm" style={{ color: '#2563EB' }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>Explore</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = '/signup';
+                  }}
+                  className="mt-auto flex w-fit items-center gap-1 rounded-lg border border-blue-500/20 px-3 py-2 text-sm font-semibold transition hover:bg-blue-500/10"
+                  style={{ color: '#2563EB', fontFamily: 'Inter, sans-serif' }}
+                >
+                  <span>{f.cta ? 'Start Tracking' : 'Explore'}</span>
                   <ArrowUpRight size={14} />
-                </div>
+                </button>
               )}
             </motion.div>
           ))}

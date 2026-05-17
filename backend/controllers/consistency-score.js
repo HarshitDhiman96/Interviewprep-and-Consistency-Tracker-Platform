@@ -1,3 +1,9 @@
+// Ye controller user ki consistency percentage calculate karta hai.
+// Formula simple hai: active days / total days span * 100.
+// Active day matlab jis calendar day par user ne kam se kam ek log add kiya.
+// Total days first log date se last log date tak count hote hain.
+// Same day ke multiple logs active days ya total days ko extra inflate nahi karte.
+
 //core idea=
 // Consistency = (Number of days user studied / Total days span) * 100
 // 🔍 Example

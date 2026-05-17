@@ -1,3 +1,9 @@
+// Ye controller user ka streak data return karta hai.
+// Logged-in user ke liye streak record database se find hota hai.
+// Agar streak record nahi mila, to default 0 current streak,
+// 0 longest streak aur null lastActiveDate bhejte hain.
+// Agar record mila, to wahi streak data response me send hota hai.
+
 const Streak=require("../models/streak_model");
 
 const getStreak = async (req, res) => {

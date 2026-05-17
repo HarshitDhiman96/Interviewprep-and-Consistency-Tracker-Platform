@@ -28,6 +28,28 @@ const userschema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    lastActiveDate: {
+        type: Date
+    },
+    currentStreak: {
+        type: Number,
+        default: 0
+    },
+    lastLoginDate: {
+        type: Date
+    },
+    isFirstTimeUser: {
+        type: Boolean,
+        default: true
+    },
+    needsInconsistencyReason: {
+        type: Boolean,
+        default: false
+    },
+    inconsistencyGapDays: {
+        type: Number,
+        default: 0
+    },
     skills: [{
         name: {
             type: String,
@@ -42,6 +64,6 @@ const userschema = new mongoose.Schema({
             default: Date.now
         }
     }]
-}, { timestamp: true })
+}, { timestamps: true })
 
 module.exports = new mongoose.model('user', userschema)
