@@ -50,6 +50,17 @@ const userschema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    primaryGoal: {
+        type: String,
+        default: ""
+    },
+    goalCompleted: {
+        type: Boolean,
+        default: false
+    },
+    goalCreatedAt: {
+        type: Date
+    },
     skills: [{
         name: {
             type: String,

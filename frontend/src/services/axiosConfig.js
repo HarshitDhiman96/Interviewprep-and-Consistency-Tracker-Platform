@@ -30,7 +30,13 @@ apiClient.interceptors.response.use(
     } else if (!error.response) {
       console.error('Network error while contacting backend:', error.message);
     } else {
-      console.error('API request failed:', error.response?.data || error.message);
+      console.error('API request failed:', {
+        method: error.config?.method?.toUpperCase(),
+        baseURL: error.config?.baseURL,
+        url: error.config?.url,
+        status,
+        data: error.response?.data || error.message,
+      });
     }
 
     return Promise.reject(error);

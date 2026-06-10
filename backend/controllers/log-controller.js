@@ -10,7 +10,7 @@ const updateStreak=require("../utils/streak-utils")
 
 const addlog = async (req, res) => {
     try {
-        const { skill, status, topic, difficulty, timespent } = req.body;
+        const { skill, status, topic, difficulty, timespent, reflection, mood } = req.body;
         const userID = req.user.id;
         if (!userID) {
             return res.status(400).json({
@@ -19,7 +19,7 @@ const addlog = async (req, res) => {
             })
         }
         // console.log(userID);
-        const newlog = new log({ user: userID, skill, status, topic, difficulty, timespent });
+        const newlog = new log({ user: userID, skill, status, topic, difficulty, timespent, reflection, mood });
         // console.log(newlog);
         await newlog.save();
 

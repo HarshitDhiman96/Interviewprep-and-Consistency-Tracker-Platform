@@ -27,6 +27,14 @@ const logschema = new mongoose.Schema({
     timespent: {
         type: Number,
         required: true
+    },
+    reflection: {
+        type: String,
+        default: ""
+    },
+    mood: {
+        type: String,
+        default: ""
     }
 }, { timestamps: true });
 

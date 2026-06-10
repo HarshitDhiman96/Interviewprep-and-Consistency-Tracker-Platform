@@ -30,6 +30,11 @@ export default function Login() {
           return;
         }
 
+        if (!data?.user?.goalCompleted && !data?.user?.primaryGoal) {
+          setTimeout(() => navigate('/dashboard'), 300);
+          return;
+        }
+
         const skillsData = await fetchSkills().catch(() => ({ skills: [] }));
         const hasSkills = Array.isArray(skillsData?.skills) && skillsData.skills.length > 0;
         setTimeout(() => navigate(hasSkills ? '/dashboard' : '/onboarding'), 300);

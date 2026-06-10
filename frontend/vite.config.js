@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const proxyTarget =
     env.VITE_DEV_API_PROXY_TARGET ||
     env.VITE_API_URL ||
-    'https://interviewprep-and-consistency-tracker.onrender.com'
+    'http://localhost:4000'
 
   return {
     plugins: [react(), tailwindcss()],

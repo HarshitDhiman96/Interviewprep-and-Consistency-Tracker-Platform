@@ -58,7 +58,9 @@ const buildUserResponse = (loginuser) => ({
   lastActiveDate: loginuser.lastActiveDate || null,
   currentStreak: loginuser.currentStreak || 0,
   needsInconsistencyReason: Boolean(loginuser.needsInconsistencyReason),
-  gapDays: loginuser.inconsistencyGapDays || 0
+  gapDays: loginuser.inconsistencyGapDays || 0,
+  primaryGoal: loginuser.primaryGoal || "",
+  goalCompleted: Boolean(loginuser.goalCompleted || loginuser.primaryGoal)
 });
 
 const buildAccessToken = (loginuser, rememberMe = false) => (
@@ -100,7 +102,9 @@ const register = async (req, res) => {
       lastLoginDate: null,
       isFirstTimeUser: true,
       needsInconsistencyReason: false,
-      inconsistencyGapDays: 0
+      inconsistencyGapDays: 0,
+      primaryGoal: "",
+      goalCompleted: false
     });
     await newuser.save();
 
@@ -184,7 +188,7 @@ const login = async (req, res) => {
 
 const me = async (req, res) => {
   try {
-    const currentUser = await user.findById(req.user.id).select("name email role rememberMe lastActiveDate currentStreak needsInconsistencyReason inconsistencyGapDays");
+    const currentUser = await user.findById(req.user.id).select("name email role rememberMe lastActiveDate currentStreak needsInconsistencyReason inconsistencyGapDays primaryGoal goalCompleted");
 
     if (!currentUser) {
       return res.status(404).json({
@@ -328,4 +332,41 @@ const changepassword = async (req, res) => {
   }
 }
 
-module.exports = { register, login, changepassword, me, logout, updateRememberPreference }
+const updateGoal = async (req, res) => {
+  try {
+    const { primaryGoal } = req.body;
+    if (!primaryGoal) {
+      return res.status(400).json({
+        success: false,
+        message: "Primary goal is required"
+      });
+    }
+
+    const currentUser = await user.findById(req.user.id);
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    currentUser.primaryGoal = primaryGoal;
+    currentUser.goalCompleted = true;
+    currentUser.goalCreatedAt = currentUser.goalCreatedAt || new Date();
+    await currentUser.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Goal updated successfully",
+      user: buildUserResponse(currentUser)
+    });
+  } catch (e) {
+    console.error("error while updating goal", e);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to update your goal"
+    });
+  }
+};
+
+module.exports = { register, login, changepassword, me, logout, updateRememberPreference, updateGoal }

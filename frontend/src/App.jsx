@@ -57,6 +57,7 @@ function AppLayout() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+      {/* Toast and Global Overlays */}
       <InconsistencyReasonPopup />
       <BackToTop />
       <Footer />

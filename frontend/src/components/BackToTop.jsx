@@ -65,7 +65,7 @@ const BackToTop = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          className="fixed bottom-8 right-8 z-[100]"
+          className="fixed bottom-8 right-24 z-[100]"
         >
           <button
             ref={buttonRef}

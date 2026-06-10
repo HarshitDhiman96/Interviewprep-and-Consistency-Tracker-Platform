@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock } from 'lucide-react';
+import { KeyRound, Eye, EyeOff, CheckCircle2, AlertCircle, User, ArrowLeft, Lock, Target, Sparkles } from 'lucide-react';
 import { changePassword as apiChangePassword } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,6 +9,16 @@ import { useAuth } from '../context/AuthContext';
 const CHARS = '!@#$%^&*():{};|,.<>/?';
 const CYCLES_PER_LETTER = 2;
 const SHUFFLE_TIME = 50;
+
+const GOAL_OPTIONS = [
+  'Crack an Internship',
+  'Crack a Software Engineering Job',
+  'Learn DSA',
+  'Learn Web Development',
+  'Learn AI/ML',
+  'Improve Consistency',
+  'Prepare for Placements',
+];
 
 function EncryptButton({ targetText, disabled, loading }) {
   const intervalRef = useRef(null);
@@ -70,7 +80,7 @@ function EncryptButton({ targetText, disabled, loading }) {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, authLoading, logout, setRememberMe } = useAuth();
+  const { user, isAuthenticated, authLoading, logout, setRememberMe, refreshAuth, updateGoal } = useAuth();
   const [rememberMeEnabled, setRememberMeEnabled] = useState(false);
 
   // Change password form state
@@ -80,6 +90,10 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [rememberLoading, setRememberLoading] = useState(false);
   const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', message: '' }
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState('');
+  const [customGoal, setCustomGoal] = useState('');
+  const [goalLoading, setGoalLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -94,6 +108,14 @@ export default function Profile() {
 
     setRememberMeEnabled(Boolean(user.rememberMe));
     setFormData((prev) => ({ ...prev, email: user.email || '' }));
+    if (user.primaryGoal) {
+      if (GOAL_OPTIONS.includes(user.primaryGoal)) {
+        setSelectedGoal(user.primaryGoal);
+      } else {
+        setSelectedGoal('Custom Goal');
+        setCustomGoal(user.primaryGoal);
+      }
+    }
   }, [user]);
 
   const handleChange = (e) => {
@@ -150,6 +172,26 @@ export default function Profile() {
       });
     } finally {
       setRememberLoading(false);
+    }
+  };
+
+  const handleGoalUpdate = async (e) => {
+    e.preventDefault();
+    const finalGoal = selectedGoal === 'Custom Goal' ? customGoal : selectedGoal;
+    if (!finalGoal) return;
+
+    setGoalLoading(true);
+    setFeedback(null);
+
+    try {
+      await updateGoal(finalGoal);
+      await refreshAuth();
+      setFeedback({ type: 'success', message: 'Primary goal updated successfully!' });
+      setIsEditingGoal(false);
+    } catch (err) {
+      setFeedback({ type: 'error', message: err.message || 'Unable to update your goal.' });
+    } finally {
+      setGoalLoading(false);
     }
   };
 
@@ -241,6 +283,94 @@ export default function Profile() {
               ? 'Enabled: this browser will keep your signed-in cookie for up to 7 days.'
               : 'Disabled: the app will use the shorter cookie lifetime instead.'}
           </p>
+        </motion.div>
+
+        {/* Primary Goal Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="rounded-3xl p-8 bg-white border border-zinc-200 shadow-lg shadow-zinc-100/50 dark:bg-white/5 dark:border-white/8 dark:shadow-none"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 border border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20">
+                <Target size={18} className="text-blue-500" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-zinc-950 dark:text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                  Primary Goal
+                </h2>
+                <p className="text-xs mt-0.5 text-zinc-500 dark:text-white/40">
+                  Your current focus on the platform
+                </p>
+              </div>
+            </div>
+            {!isEditingGoal && (
+              <button
+                onClick={() => setIsEditingGoal(true)}
+                className="text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                Change Goal
+              </button>
+            )}
+          </div>
+
+          {!isEditingGoal ? (
+            <div className="flex items-center gap-2 p-4 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5">
+              <Sparkles size={16} className="text-blue-500" />
+              <span className="font-semibold text-zinc-800 dark:text-white">
+                {user.primaryGoal || 'No goal set yet'}
+              </span>
+            </div>
+          ) : (
+            <form onSubmit={handleGoalUpdate} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[...GOAL_OPTIONS, 'Custom Goal'].map((goal) => (
+                  <button
+                    key={goal}
+                    type="button"
+                    onClick={() => setSelectedGoal(goal)}
+                    className={`p-3 rounded-xl border text-sm font-semibold transition-all text-left ${
+                      selectedGoal === goal
+                        ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-500/10 dark:border-blue-500/30'
+                        : 'bg-zinc-50 border-zinc-100 text-zinc-600 dark:bg-white/5 dark:border-white/5 dark:text-white/60'
+                    }`}
+                  >
+                    {goal}
+                  </button>
+                ))}
+              </div>
+
+              {selectedGoal === 'Custom Goal' && (
+                <input
+                  type="text"
+                  required
+                  value={customGoal}
+                  onChange={(e) => setCustomGoal(e.target.value)}
+                  placeholder="Enter your custom goal"
+                  className="w-full py-3 px-4 rounded-xl text-sm bg-zinc-50 border border-zinc-200 dark:bg-white/5 dark:border-white/10 dark:text-white outline-none focus:border-blue-400"
+                />
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={goalLoading || !selectedGoal || (selectedGoal === 'Custom Goal' && !customGoal)}
+                  className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {goalLoading ? 'Saving...' : 'Save Goal'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingGoal(false)}
+                  className="flex-1 py-3 rounded-xl bg-zinc-100 text-zinc-600 font-bold text-sm hover:bg-zinc-200 dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
         </motion.div>
 
         {/* Change Password Card */}

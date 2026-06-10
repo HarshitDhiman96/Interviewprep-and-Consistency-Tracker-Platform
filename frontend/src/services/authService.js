@@ -64,3 +64,31 @@ export const updateRememberMe = async (rememberMe) => {
     throw createServiceError(error, 'Unable to update your remember me preference.');
   }
 };
+
+export const updateUserGoal = async (primaryGoal) => {
+  const goalEndpoints = ['/api/update-goal', '/api/auth/goal'];
+  let lastError;
+
+  for (const endpoint of goalEndpoints) {
+    try {
+      const { data } = await apiClient.post(endpoint, { primaryGoal });
+      return data;
+    } catch (error) {
+      lastError = error;
+      const status = error.response?.status;
+      const responseText = typeof error.response?.data === 'string' ? error.response.data : '';
+      const isMissingRoute = status === 404 && responseText.includes('Cannot POST');
+
+      if (!isMissingRoute) {
+        throw createServiceError(error, 'Unable to update your primary goal right now.');
+      }
+    }
+  }
+
+  try {
+    const { data } = await apiClient.put('/api/auth/goal', { primaryGoal });
+    return data;
+  } catch (error) {
+    throw createServiceError(error || lastError, 'Unable to update your primary goal right now.');
+  }
+};

@@ -302,6 +302,8 @@ export function SkillProvider({ children }) {
         topic: log.topic,
         difficulty: log.difficulty?.toLowerCase() || 'medium',
         timespent: Number(log.timeSpent),
+        reflection: log.reflection || '',
+        mood: log.mood || '',
       };
 
       const data = await addLog(payload);

@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { fetchCurrentUser, loginUser, logoutUser, updateRememberMe } from '../services/authService';
+import { fetchCurrentUser, loginUser, logoutUser, updateRememberMe, updateUserGoal } from '../services/authService';
 import { submitInconsistencyReason } from '../services/inconsistencyReasonService';
 import {
   getPendingInconsistencyReason,
@@ -144,6 +144,18 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const updateGoal = useCallback(async (primaryGoal) => {
+    const data = await updateUserGoal(primaryGoal);
+    setUser((current) => ({
+      ...(current || {}),
+      ...(data?.user || {}),
+      primaryGoal,
+      goalCompleted: true,
+    }));
+    notifySessionChange(true);
+    return data;
+  }, []);
+
   const value = useMemo(() => ({
     user,
     isAuthenticated: Boolean(user),
@@ -155,6 +167,7 @@ export function AuthProvider({ children }) {
     logout,
     refreshAuth,
     setRememberMe,
+    updateGoal,
     submitReason,
   }), [
     authLoading,
@@ -165,6 +178,7 @@ export function AuthProvider({ children }) {
     refreshAuth,
     setRememberMe,
     submitReason,
+    updateGoal,
     user
   ]);
 

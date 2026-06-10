@@ -5,6 +5,7 @@ const routes=require("./routes/auth-routes")
 const skillsroutes=require("./routes/skillsroutes")
 const logroutes=require('./routes/log-routes')
 const inconsistencyReasonRoutes = require('./routes/inconsistency-reason-routes')
+const updateGoalRoutes = require('./routes/update-goal')
 const db=require('./database/db');
 const streakroutes = require('./routes/streak-routes');
  //const heatmap=require("./controllers/heat-map-controller");
@@ -50,13 +51,13 @@ app.get("/",(req,res)=>{
     res.json("Home Page with basic route")
 })
 app.use("/api/auth",routes);
+app.use("/api/update-goal", updateGoalRoutes);
 app.use("/api/inconsistency-reason", inconsistencyReasonRoutes);
 app.use("/api/skills",skillsroutes);
 app.use("/api/log",logroutes)
 app.use("/api/streak",streakroutes)
 app.use("/api/analytics",analytics);
 app.use('/api/revision',revision);
-
  //app.get("/api/analytics/heatmap",authMiddleware,heatmap);  
 
 const PORT = process.env.PORT || 4000;
