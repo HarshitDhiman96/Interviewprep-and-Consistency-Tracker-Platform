@@ -1,0 +1,67 @@
+const ChatModel = require("../models/AI-Chat-model");
+const { GoogleGenAI } = require("@google/genai");
+
+const ai = new GoogleGenAI({
+    apiKey: process.env.GOOGLE_API_KEY
+});
+
+const aiChatbotController = async (req, res) => {
+    try {
+        const userMessage = req.body?.message || req.body?.userProblem;
+
+        if (!userMessage) {
+            return res.status(400).json({
+                message: "Please provide a message in the request body."
+            });
+        }
+
+        const history = Array.isArray(req.body?.history)
+            ? req.body.history.map((entry) => ({
+                role: entry.role,
+                parts: [{ text: entry.text || entry.parts?.[0]?.text || "" }]
+            }))
+            : [];
+
+        history.push({
+            role: "user",
+            parts: [{ text: userMessage }]
+        });
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: history,
+            config: {
+                systemInstruction: "You are a personalized AI coach for Computer Science students."
+            }
+        });
+
+        const modelReply = response?.text || "I could not generate a reply.";
+
+        history.push({
+            role: "model",
+            parts: [{ text: modelReply }]
+        });
+
+        const formattedChat = history.map((message) => ({
+            role: message.role,
+            text: message.parts?.[0]?.text || ""
+        }));
+
+        const newChat = await ChatModel.create({
+            userId: req.user?.id,
+            fullChat: formattedChat
+        });
+
+        return res.status(200).json({
+            message: modelReply,
+            conversationId: newChat._id,
+            history: formattedChat
+        });
+    } catch (error) {
+        console.error("AI chatbot controller error:", error);
+        return res.status(500).json({
+            message: "Failed to process chatbot request. Problem from  your end ",
+            error: error.message
+        });
+    }
+};

@@ -174,7 +174,8 @@ const login = async (req, res) => {
           hasPreviousActivity: activitySnapshot.hasPreviousActivity,
           shouldShowPopup: Boolean(loginuser.needsInconsistencyReason)
         },
-        user: buildUserResponse(loginuser)
+        user: buildUserResponse(loginuser),
+        jwtkey:accesstoken
       });
     }
   } catch (e) {

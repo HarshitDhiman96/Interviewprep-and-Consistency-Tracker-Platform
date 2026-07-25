@@ -31,6 +31,36 @@ The system is split into:
 - Revision queue tracking with revision counts
 - Activity heatmap and click-tracking support
 - Theme support and animated modern UI
+- AI Personalized Coach that remembers prior conversation context and provides personalized guidance instead of generic advice
+- Conversation memory summaries that capture user struggles, progress, goals, and behavior patterns for future coaching
+- Manual conversation summarization when the coach panel is closed so important user context is stored for later use
+
+## AI Personalized Coach Flow
+
+The project now includes an AI Personal Coach that goes beyond generic responses.
+
+### How the coach works
+
+1. The frontend opens a floating AI coach panel from the dashboard.
+2. Every chat turn is sent to the backend with a conversation ID so the same conversation can be continued over time.
+3. The backend stores the full conversation history for that conversation.
+4. When the user closes the coach panel, the system generates a concise memory summary using Groq.
+5. That summary stores important personalization signals such as:
+   - what the user is struggling with
+   - what they have improved at
+   - their current goals and motivation
+   - their behavior patterns and consistency issues
+   - topics they keep getting stuck on
+6. Future responses use that preserved context to give more tailored advice.
+
+### Example behavior
+
+If a user says they are weak in DSA and keep getting stuck on recursion, the coach can later respond with more personalized guidance such as:
+
+- "You have been struggling with recursion for a while and tend to get stuck when translating the logic into code."
+- "You seem inconsistent in practice, so a short daily recursion drill may help more than long irregular sessions."
+
+This makes the coach feel more like a personal mentor than a generic chatbot.
 
 ## User Flow
 
@@ -265,6 +295,11 @@ Main fields:
 - `GET /api/revision/fetch`
 - `DELETE /api/revision/:revisionId`
 
+### AI Coach Routes
+
+- `POST /api/AI/chatbot`
+- `POST /api/AI/chatbot/summary`
+
 ## Folder Structure
 
 ```text
@@ -394,6 +429,8 @@ The backend expects these environment variables:
 - `COOKIE_SAME_SITE`
 - `COOKIE_SECURE`
 - `NODE_ENV`
+- `GROQ_API_KEY`
+- `GOOGLE_API_KEY`
 
 The frontend also supports:
 
@@ -443,4 +480,5 @@ npm run dev
 - The backend currently uses MongoDB Atlas via Mongoose.
 - Most dashboard analytics are computed dynamically from the `log` collection.
 - Streaks are not manually edited; they are updated automatically when logs are added.
-- Backend tests can be run from `backend/` with `npm test`.
+- The AI coach uses conversation history plus a saved summary to provide more personalized assistance.
+- Summary generation uses the configured LLM provider (Groq by default when `GROQ_API_KEY` is available).

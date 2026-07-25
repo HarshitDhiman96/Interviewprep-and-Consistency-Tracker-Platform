@@ -1,2 +1,5 @@
 1. pagination in fetchbyskill route so that we can handle logs more efficiently
 2. indexing in log model for fast searching or filtering 
+3. storing chats and sumamry of chats in databse so that in future  used for vector search ✅
+4. embeding in ai perosnalised coach 
+5. vector serch

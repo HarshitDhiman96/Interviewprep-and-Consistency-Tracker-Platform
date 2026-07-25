@@ -25,6 +25,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { useSkillContext } from '../context/SkillContext';
 import { useAuth } from '../context/AuthContext';
 import GoalOnboardingModal from '../components/GoalOnboardingModal';
+import { sendCoachMessage, summarizeCoachConversation } from '../services/aiChatService';
 
 const STATUS_OPTIONS = ['Solved', 'Stuck', 'Revised'];
 const MOOD_OPTIONS = [
@@ -124,6 +125,11 @@ export default function Dashboard() {
   // --- Task 2: AI Coach drawer & tooltip state ---
   const [coachOpen, setCoachOpen] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
+  const [coachMessages, setCoachMessages] = useState([]);
+  const [coachInput, setCoachInput] = useState('');
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [coachError, setCoachError] = useState('');
+  const [conversationId, setConversationId] = useState('');
 
   const MONTH_NAMES = useMemo(() => [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -229,6 +235,57 @@ export default function Dashboard() {
       navigate('/login');
     }
   }, [authLoading, isAuthenticated, navigate]);
+
+  const handleCoachSend = async (event) => {
+    event?.preventDefault();
+
+    if (!coachInput.trim() || coachLoading) {
+      return;
+    }
+
+    const userMessage = coachInput.trim();
+    setCoachInput('');
+    setCoachLoading(true);
+    setCoachError('');
+    setCoachMessages((prev) => [...prev, { role: 'user', text: userMessage }]);
+
+    try {
+      const payload = await sendCoachMessage({
+        message: userMessage,
+        conversationId,
+      });
+
+      if (payload?.conversationId) {
+        setConversationId(payload.conversationId);
+      }
+
+      setCoachMessages((prev) => [...prev, { role: 'model', text: payload?.message || 'I could not respond right now.' }]);
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Unable to reach the AI coach right now.';
+      setCoachError(message);
+      setCoachMessages((prev) => [...prev, { role: 'model', text: message }]);
+    } finally {
+      setCoachLoading(false);
+    }
+  };
+
+  const handleCloseCoach = async () => {
+    if (!conversationId) {
+      setCoachOpen(false);
+      return;
+    }
+
+    try {
+      // console.log('[AI Coach] Closing conversation and triggering summary for:', conversationId);
+      const result = await summarizeCoachConversation({ conversationId });
+      // console.log('[AI Coach] Summary result:', result);
+      setCoachMessages((prev) => [...prev, { role: 'system', text: `Summary saved: ${result?.summary || 'No summary available.'}` }]);
+    } catch (error) {
+      console.error('[AI Coach] Summary failed:', error?.response?.data || error.message);
+    } finally {
+      setCoachOpen(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.goalCompleted || user?.primaryGoal) {
@@ -997,7 +1054,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setCoachOpen(false)}
+                  onClick={handleCloseCoach}
                   className="w-8 h-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-700 hover:bg-white/5 dark:hover:bg-zinc-100 transition-colors"
                 >
                   <X size={16} />
@@ -1006,7 +1063,6 @@ export default function Dashboard() {
 
               {/* Chat Area */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {/* Message 1 (Coach) */}
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center bg-blue-500/10 text-blue-400 dark:text-blue-600 mt-0.5">
                     <Bot size={16} />
@@ -1018,33 +1074,68 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Message 2 (Coach) */}
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center bg-blue-500/10 text-blue-400 dark:text-blue-600 mt-0.5">
-                    <Bot size={16} />
+                {coachMessages.map((message, index) => {
+                  const isUser = message.role === 'user';
+                  const isSystem = message.role === 'system';
+
+                  return (
+                    <div key={`${message.role}-${index}`} className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''}`}>
+                      {!isUser && (
+                        <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center bg-blue-500/10 text-blue-400 dark:text-blue-600 mt-0.5">
+                          <Bot size={16} />
+                        </div>
+                      )}
+                      <div className={`p-3.5 rounded-[20px] text-xs leading-relaxed max-w-[80%] border ${
+                        isUser
+                          ? 'bg-blue-600 text-white border-blue-500'
+                          : isSystem
+                            ? 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-300'
+                            : 'bg-zinc-900 border-white/5 text-zinc-200 dark:bg-zinc-100 dark:border-zinc-200/50 dark:text-zinc-800'
+                      } ${isUser ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}>
+                        <p>{message.text}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {coachLoading && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center bg-blue-500/10 text-blue-400 dark:text-blue-600 mt-0.5">
+                      <Bot size={16} />
+                    </div>
+                    <div className="p-3.5 rounded-[20px] rounded-tl-sm text-xs leading-relaxed max-w-[80%] bg-zinc-900 border border-white/5 text-zinc-200 dark:bg-zinc-100 dark:border-zinc-200/50 dark:text-zinc-800">
+                      <p>Thinking...</p>
+                    </div>
                   </div>
-                  <div className="p-3.5 rounded-[20px] rounded-tl-sm text-xs leading-relaxed max-w-[80%] bg-zinc-900 border border-white/5 text-zinc-200 dark:bg-zinc-100 dark:border-zinc-200/50 dark:text-zinc-800">
-                    <p>
-                      Working on it! Till then, you can commit daily logs so that when I wake up I can reply to you more efficiently. 🚀
-                    </p>
+                )}
+
+                {coachError && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-300 text-xs">
+                    {coachError}
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Input Footer */}
-              <div className="p-4 border-t bg-zinc-900 border-white/10 dark:bg-zinc-50 dark:border-zinc-200">
+              <form onSubmit={handleCoachSend} className="p-4 border-t bg-zinc-900 border-white/10 dark:bg-zinc-50 dark:border-zinc-200">
                 <div className="relative">
                   <input
                     type="text"
-                    disabled
-                    placeholder="Coach is analyzing logs..."
-                    className="w-full pl-4 pr-10 py-3 rounded-xl text-xs bg-zinc-950 border border-white/10 dark:bg-white dark:border-zinc-200 text-zinc-500 outline-none select-none"
+                    value={coachInput}
+                    onChange={(event) => setCoachInput(event.target.value)}
+                    disabled={coachLoading}
+                    placeholder="Ask your AI coach..."
+                    className="w-full pl-4 pr-10 py-3 rounded-xl text-xs bg-zinc-950 border border-white/10 dark:bg-white dark:border-zinc-200 text-zinc-200 dark:text-zinc-800 outline-none"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600">
-                    <Sparkles size={14} className="animate-pulse" />
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={coachLoading}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-blue-400 disabled:opacity-50"
+                  >
+                    <Sparkles size={14} className={coachLoading ? 'animate-pulse' : ''} />
+                  </button>
                 </div>
-              </div>
+              </form>
             </motion.div>
           )}
 
