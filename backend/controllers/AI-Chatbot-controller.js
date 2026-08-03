@@ -1,16 +1,14 @@
 const ChatModel = require("../models/AI-Chat-model");
-const { generateLLMResponse } = require("../utils/llm-utils");
+const EmbedModel = require("../models/embed-model");
+const { generateLLMResponse, generateSummaryEmbeddingWithGroq, findRelevantMemories } = require("../utils/llm-utils");
 
 const aiChatbotController = async (req, res) => {
 
     try {
 
-        const userMessage =
-            req.body?.message ||
-            req.body?.userProblem;
+        const userMessage =req.body?.message || req.body?.userProblem;
 
-        const conversationId =
-            req.body?.conversationId;
+        const conversationId = req.body?.conversationId;
 
         if (!userMessage) {
             return res.status(400).json({
@@ -51,7 +49,28 @@ const aiChatbotController = async (req, res) => {
             text: userMessage
         });
 
-        const result = await generateLLMResponse(conversation.fullChat);
+        let memoryContext = "";
+
+        try {
+            const queryEmbedding = await generateSummaryEmbeddingWithGroq(userMessage);
+            const memories = await EmbedModel.find({ userId })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .lean();
+                console.log("[AI Coach] Retrieved memories:", memories.length);
+
+            const relevantMemories = findRelevantMemories(queryEmbedding, memories, 3);
+
+            if (relevantMemories.length) {
+                memoryContext = relevantMemories
+                    .map((memory) => `- ${memory.summary}`)
+                    .join("\n");
+            }
+        } catch (memoryError) {
+            console.warn("[AI Coach] Memory retrieval failed:", memoryError.message);
+        }
+
+        const result = await generateLLMResponse(conversation.fullChat, memoryContext);
         const modelReply = result?.text || "I could not generate a response.";
 
         conversation.fullChat.push({

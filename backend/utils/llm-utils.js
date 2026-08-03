@@ -70,6 +70,119 @@ The final memory should answer questions such as:
 Write one concise, information-dense paragraph optimized for semantic/vector retrieval.
 Return ONLY the memory summary.`
 
+function createFallbackEmbedding(text) {
+    const normalized = String(text || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .trim();
+
+    const tokens = normalized.split(/\s+/).filter(Boolean);
+
+    if (!tokens.length) {
+        return Array.from({ length: 32 }, () => 0);
+    }
+
+    return Array.from({ length: 32 }, (_, index) => {
+        let sum = 0;
+
+        for (const token of tokens) {
+            const charCodeSum = token
+                .split("")
+                .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+            sum += ((charCodeSum + index + 1) % 11) / 11;
+        }
+
+        return Number((sum / tokens.length).toFixed(6));
+    });
+}
+
+function cosineSimilarity(leftEmbedding, rightEmbedding) {
+    if (!Array.isArray(leftEmbedding) || !Array.isArray(rightEmbedding)) {
+        return 0;
+    }
+
+    const length = Math.min(leftEmbedding.length, rightEmbedding.length);
+
+    if (!length) {
+        return 0;
+    }
+
+    let dotProduct = 0;
+    let leftNorm = 0;
+    let rightNorm = 0;
+
+    for (let index = 0; index < length; index += 1) {
+        const leftValue = Number(leftEmbedding[index]) || 0;
+        const rightValue = Number(rightEmbedding[index]) || 0;
+
+        dotProduct += leftValue * rightValue;
+        leftNorm += leftValue * leftValue;
+        rightNorm += rightValue * rightValue;
+    }
+
+    if (!leftNorm || !rightNorm) {
+        return 0;
+    }
+
+    return dotProduct / (Math.sqrt(leftNorm) * Math.sqrt(rightNorm));
+}
+
+function findRelevantMemories(queryEmbedding, memories, limit = 3) {
+    if (!Array.isArray(memories) || !memories.length) {
+        return [];
+    }
+
+    return memories
+        .map((memory) => ({
+            ...memory,
+            score: cosineSimilarity(queryEmbedding, memory.embedding || [])
+        }))
+        .filter((memory) => memory.score > 0)
+        .sort((left, right) => right.score - left.score)
+        .slice(0, limit)
+        .map(({ summary, score }) => ({ summary, score }));
+}
+
+async function generateSummaryEmbeddingWithGroq(summaryText) {
+    if (!groq) {
+        console.warn("[AI Coach] GROQ_API_KEY is not configured; using fallback embedding.");
+        return createFallbackEmbedding(summaryText);
+    }
+
+    const text = String(summaryText || "").trim();
+
+    if (!text) {
+        return [];
+    }
+
+    const models = ["text-embedding-3-small", "text-embedding-3-large"];
+    let lastError = null;
+
+    for (const model of models) {
+        try {
+            const response = await groq.embeddings.create({
+                model,
+                input: text
+            });
+
+            const embedding = response?.data?.[0]?.embedding;
+
+            if (Array.isArray(embedding) && embedding.length) {
+                return embedding;
+            }
+
+            throw new Error(`Empty embedding returned for model ${model}`);
+        } catch (error) {
+            lastError = error;
+            console.warn(`[AI Coach] Groq embedding attempt failed for ${model}:`, error.message);
+        }
+    }
+
+    console.warn("[AI Coach] Falling back to deterministic summary embedding.");
+    return createFallbackEmbedding(text);
+}
+
 async function summarizeConversationWithGroq(history, previousSummary = "") {
     if (!groq) {
         throw new Error("GROQ_API_KEY is not configured.");
@@ -107,7 +220,7 @@ async function summarizeConversationWithGroq(history, previousSummary = "") {
 // GROQ
 // =====================================================
 
-async function generateWithGroq(history) {
+async function generateWithGroq(history, memoryContext = "") {
     if (!groq) {
         throw new Error("GROQ_API_KEY is not configured.");
     }
@@ -126,9 +239,13 @@ async function generateWithGroq(history) {
 
     // Add system instruction at beginning
 
+    const systemInstruction = memoryContext
+        ? `${COACH_SYSTEM_INSTRUCTION}\n\nRelevant memory from earlier conversations:\n${memoryContext}`
+        : COACH_SYSTEM_INSTRUCTION;
+
     messages.unshift({
         role: "system",
-        content: COACH_SYSTEM_INSTRUCTION
+        content: systemInstruction
     });
 
 
@@ -156,7 +273,7 @@ async function generateWithGroq(history) {
 // GEMINI
 // =====================================================
 
-async function generateWithGemini(history) {
+async function generateWithGemini(history, memoryContext = "") {
     if (!gemini) {
         throw new Error("GOOGLE_API_KEY is not configured.");
     }
@@ -183,8 +300,9 @@ async function generateWithGemini(history) {
             contents: contents,
 
             config: {
-                systemInstruction:
-                    COACH_SYSTEM_INSTRUCTION
+                systemInstruction: memoryContext
+                    ? `${COACH_SYSTEM_INSTRUCTION}\n\nRelevant memory from earlier conversations:\n${memoryContext}`
+                    : COACH_SYSTEM_INSTRUCTION
             }
         });
 
@@ -198,7 +316,7 @@ async function generateWithGemini(history) {
 // FALLBACK
 // =====================================================
 
-async function generateLLMResponse(history) {
+async function generateLLMResponse(history, memoryContext = "") {
 
     // ===============================
     // 1. GROQ PRIMARY
@@ -210,7 +328,7 @@ async function generateLLMResponse(history) {
 
 
         const response =
-            await generateWithGroq(history);
+            await generateWithGroq(history, memoryContext);
 
 
         console.log(
@@ -268,7 +386,7 @@ async function generateLLMResponse(history) {
 
 
         const response =
-            await generateWithGemini(history);
+            await generateWithGemini(history, memoryContext);
 
 
         console.log(
@@ -299,5 +417,7 @@ async function generateLLMResponse(history) {
 
 module.exports = {
     generateLLMResponse,
-    summarizeConversationWithGroq
+    summarizeConversationWithGroq,
+    generateSummaryEmbeddingWithGroq,
+    findRelevantMemories
 };

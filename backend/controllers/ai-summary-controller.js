@@ -1,5 +1,6 @@
 const ChatModel = require("../models/AI-Chat-model");
-const { summarizeConversationWithGroq } = require("../utils/llm-utils");
+const EmbedModel = require("../models/embed-model");
+const { summarizeConversationWithGroq, generateSummaryEmbeddingWithGroq } = require("../utils/llm-utils");
 
 const summarizeConversation = async (req, res) => {
   try {
@@ -37,19 +38,35 @@ const summarizeConversation = async (req, res) => {
     }
 
     const summaryText = await summarizeConversationWithGroq(history, previousSummary);
+    const finalSummary = summaryText || previousSummary;
 
-    conversation.summary = summaryText || previousSummary;
+    conversation.summary = finalSummary;
     conversation.lastSummarizedMessageCount = history.length;
     conversation.isSummaryGenerated = true;
     await conversation.save();
 
-    console.log("[AI Coach] Summary response:", summaryText);
+    const embedding = await generateSummaryEmbeddingWithGroq(finalSummary);
+
+    await EmbedModel.findOneAndUpdate(
+      { chatId: conversation._id },
+      {
+        userId,
+        chatId: conversation._id,
+        conversationId,
+        summary: finalSummary,
+        embedding,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    console.log("[AI Coach] Summary response:", finalSummary);
 
     return res.status(200).json({
       message: "Conversation summarized successfully.",
       summary: conversation.summary,
       summaryGenerated: true,
       conversationId: conversation.conversationId,
+      embeddingStored: true,
     });
   } catch (error) {
     console.error("[AI Coach] Summary failed:", error.message);
