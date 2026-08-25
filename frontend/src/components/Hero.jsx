@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play, Activity, X, Flame, Target, AlertTriangle } from 'lucide-react';
+import { Play, Activity, X, Flame, Target, AlertTriangle, BrainCircuit, CalendarCheck, RotateCcw } from 'lucide-react';
 import ParticleField from './ParticleField';
 import { useNavigate } from 'react-router-dom';
 
@@ -62,7 +62,8 @@ export default function Hero() {
           />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center text-center px-6 pt-32 md:pt-48 pb-16">
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-5 pb-16 pt-28 sm:px-8 sm:pt-32 xl:grid-cols-[minmax(540px,0.95fr)_minmax(0,1.05fr)] xl:gap-16 xl:px-10 xl:pt-36">
+          <div className="flex flex-col items-center text-center xl:items-start xl:text-left">
           <motion.div {...fadeUp(0.1)}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 bg-emerald-50 border border-emerald-200 dark:border-[rgba(132,173,255,0.12)] dark:bg-[var(--surface-low)]">
               <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-500 dark:bg-[var(--primary)]" />
@@ -77,40 +78,35 @@ export default function Hero() {
             className="font-black leading-none mb-6 text-zinc-950 dark:text-white"
             style={{
               fontFamily: 'Manrope, sans-serif',
-              fontSize: 'clamp(3rem, 8vw, 5.5rem)',
+              fontSize: 'clamp(2.65rem, 4.9vw, 4rem)',
               letterSpacing: '-0.04em',
             }}
           >
-            Experience{' '}
-            <span
-              className="text-glow-blue"
-              style={{
-                background: 'linear-gradient(135deg, #2563EB 30%, #1D4ED8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                fontStyle: 'italic',
-                filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.5))',
-              }}
-            >
-              Liftoff
+            <span aria-hidden="true" className="inline-flex items-baseline tracking-[-0.04em]">
+              <span className="relative inline-block text-zinc-400 dark:text-white/35">
+                IN
+                <span className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-zinc-500 dark:bg-white/60" />
+              </span>
+              <span className="text-[#1D4ED8] dark:text-[var(--primary)]">CONSISTENT</span>
             </span>
+            <span className="sr-only">Inconsistent</span>
           </motion.h1>
 
           <motion.p
             {...fadeUp(0.3)}
-            className="max-w-xl mb-10 leading-relaxed"
+            className="max-w-xl mb-9 leading-relaxed"
             style={{
               color: '#4B5563',
               fontFamily: 'Inter, sans-serif',
               fontSize: '1.0625rem',
             }}
           >
-            Your journey to mastery starts with preparation and relentless consistency.
+            Inconsistent today? APEX turns your preparation into a routine you can trust.
             <br />
-            <span style={{ color: '#6B7280' }}>Harness the momentum of APEX.</span>
+            <span style={{ color: '#6B7280' }}>Show up, build momentum, and become consistent.</span>
           </motion.p>
 
-          <motion.div {...fadeUp(0.4)} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 w-full relative z-20">
+          <motion.div {...fadeUp(0.4)} className="relative z-20 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row xl:justify-start">
             <motion.button
               whileHover={{ scale: 1.02, boxShadow: '0px 0px 25px rgba(37,99,235,0.3)' }}
               whileTap={{ scale: 0.95 }}
@@ -130,16 +126,17 @@ export default function Hero() {
               View Demo
             </motion.button>
           </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1, ease: 'easeOut', delay: 0.6 }}
-            className="relative max-w-3xl w-full"
+            className="relative mx-auto w-full max-w-2xl xl:max-w-none"
           >
             <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              animate={{ y: [0, -12, 0], rotate: [0, 0.5, 0, -0.35, 0] }}
+              transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute -top-5 left-6 flex items-center gap-2 px-3 py-1.5 rounded-full z-10 bg-white border border-zinc-300 shadow-sm dark:shadow-none dark:bg-[var(--surface-highest)] dark:border-[rgba(132,173,255,0.15)]"
             >
               <span className="label-precision">TIME INVESTED</span>
@@ -148,7 +145,11 @@ export default function Hero() {
               </span>
             </motion.div>
 
-            <div className="rounded-2xl overflow-hidden bg-white shadow-xl shadow-zinc-200/50 border border-zinc-300 dark:bg-[var(--surface-container)] dark:border-[rgba(255,255,255,0.06)] dark:ambient-glow">
+            <motion.div
+              animate={{ y: [0, -6, 0], rotate: [0, -0.35, 0, 0.25, 0] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+              className="rounded-2xl overflow-hidden bg-white shadow-xl shadow-zinc-200/50 border border-zinc-300 dark:bg-[var(--surface-container)] dark:border-[rgba(255,255,255,0.06)]"
+            >
               <div className="flex items-center justify-between px-5 py-3 bg-zinc-50 border-b border-zinc-200 dark:bg-[var(--surface-high)] dark:border-[rgba(255,255,255,0.05)]">
                 <div className="flex gap-2">
                   <span className="w-3 h-3 rounded-full" style={{ background: '#EF4444' }} />
@@ -156,88 +157,44 @@ export default function Hero() {
                   <span className="w-3 h-3 rounded-full" style={{ background: '#10B981' }} />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="label-precision text-zinc-700 dark:text-zinc-300">Command Center</span>
+                  <span className="label-precision text-zinc-700 dark:text-zinc-300">Adaptive Prep System</span>
                   <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#2563EB' }} />
                 </div>
-                <button className="label-precision text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors">Dismiss x</button>
+                <span className="label-precision text-emerald-600 dark:text-emerald-300">LIVE</span>
               </div>
 
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-3 p-4 sm:p-6 md:grid-cols-3 md:gap-4">
+                <div className="rounded-xl p-4 md:col-span-2 bg-white border border-zinc-300 shadow-sm dark:border-transparent dark:bg-[var(--surface-low)]">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-500/10"><BrainCircuit size={17} color="#2563EB" /></div>
+                      <div><p className="text-sm font-bold text-zinc-900 dark:text-white">APEX AI Coach</p><p className="label-precision text-zinc-500">MEMORY-AWARE GUIDANCE</p></div>
+                    </div>
+                    <span className="label-precision rounded-full bg-emerald-50 px-2 py-1 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">ONLINE</span>
+                  </div>
+                  <div className="ml-auto mb-2 w-[82%] rounded-xl rounded-tr-sm bg-zinc-100 px-3 py-2 text-xs text-zinc-600 dark:bg-white/8 dark:text-zinc-300">I keep missing my revision sessions.</div>
+                  <div className="w-[90%] rounded-xl rounded-tl-sm border border-blue-100 bg-blue-50 px-3 py-2 text-xs leading-relaxed text-zinc-700 dark:border-blue-400/15 dark:bg-blue-500/10 dark:text-zinc-200">You solved Arrays twice this week. Schedule a 20-minute revision tomorrow to keep your momentum.</div>
+                </div>
+
                 <div className="rounded-xl p-4 bg-white border border-zinc-300 shadow-sm dark:border-transparent dark:bg-[var(--surface-low)]">
-                  <p className="label-precision mb-1 text-zinc-700 dark:text-zinc-300">Current Streak</p>
-                  <p className="font-black leading-none" style={{ fontSize: '2.5rem', fontFamily: 'Manrope, sans-serif', color: '#EA580C' }}>
-                    47
-                  </p>
-                  <p className="label-precision mt-1" style={{ color: '#EA580C', opacity: 0.9 }}>
-                    DAYS ACTIVE
-                  </p>
+                  <p className="label-precision mb-1 text-zinc-600 dark:text-zinc-400">CURRENT STREAK</p>
+                  <p className="font-black leading-none text-orange-600" style={{ fontSize: '2.25rem', fontFamily: 'Manrope, sans-serif' }}>14</p>
+                  <p className="label-precision mt-1 text-orange-600">DAYS ACTIVE</p>
+                  <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10"><div className="h-full w-[86%] rounded-full bg-blue-600" /></div>
+                  <p className="mt-1 text-[10px] text-zinc-500">86% consistency</p>
                 </div>
 
-                <div className="rounded-xl p-4 col-span-2 bg-white border border-zinc-300 shadow-sm dark:border-transparent dark:bg-[var(--surface-low)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="label-precision text-zinc-700 dark:text-zinc-300">Session Overview</p>
-                    <p className="label-precision" style={{ color: '#2563EB' }}>+12.4%</p>
-                  </div>
-                  <div className="flex items-end gap-2 h-16">
-                    {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 100].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 0.8 + i * 0.04, duration: 0.4, ease: 'backOut' }}
-                        className="flex-1 rounded-sm"
-                        style={{
-                          height: `${h}%`,
-                          background: i === 11 ? '#2563EB' : 'rgba(37, 99, 235, 0.2)',
-                          transformOrigin: 'bottom',
-                          boxShadow: i === 11 ? '0 0 8px rgba(37, 99, 235, 0.4)' : 'none',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-xl p-4 col-span-3 bg-white border border-zinc-300 shadow-sm dark:border-transparent dark:bg-[var(--surface-low)]">
-                  <p className="label-precision mb-3 text-zinc-700 dark:text-zinc-300">Skill Consistency</p>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: 'DSA', score: 87, color: '#2563EB' },
-                      { label: 'System Design', score: 62, color: '#EA580C' },
-                      { label: 'Web Dev', score: 91, color: '#16A34A' },
-                    ].map((d) => (
-                      <div key={d.label}>
-                        <div className="flex justify-between mb-1">
-                          <span className="label-precision text-zinc-600 dark:text-zinc-400">{d.label}</span>
-                          <span className="label-precision" style={{ color: d.color }}>{d.score}%</span>
-                        </div>
-                        <div className="h-1 rounded-full" style={{ background: '#E5E7EB' }}>
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${d.score}%` }}
-                            transition={{ delay: 1, duration: 0.8, ease: 'easeOut' }}
-                            className="h-full rounded-full"
-                            style={{
-                              background: d.color,
-                              boxShadow: `0 0 8px ${d.color}40`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+                <div className="rounded-xl p-4 md:col-span-3 bg-white border border-zinc-300 shadow-sm dark:border-transparent dark:bg-[var(--surface-low)]">
+                  <div className="mb-3 flex items-center justify-between"><p className="label-precision text-zinc-700 dark:text-zinc-300">YOUR NEXT BEST MOVE</p><span className="label-precision text-blue-600">PERSONALIZED PLAN</span></div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <div className="rounded-lg border border-rose-100 bg-rose-50/70 p-2.5 dark:border-rose-400/10 dark:bg-rose-500/8"><div className="mb-1 flex items-center gap-1.5"><AlertTriangle size={13} className="text-rose-500" /><span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Weak area</span></div><p className="text-[11px] text-zinc-600 dark:text-zinc-400">Dynamic programming needs practice.</p></div>
+                    <div className="rounded-lg border border-amber-100 bg-amber-50/70 p-2.5 dark:border-amber-400/10 dark:bg-amber-500/8"><div className="mb-1 flex items-center gap-1.5"><RotateCcw size={13} className="text-amber-600" /><span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Revision queue</span></div><p className="text-[11px] text-zinc-600 dark:text-zinc-400">Revise binary search tomorrow.</p></div>
+                    <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-2.5 dark:border-emerald-400/10 dark:bg-emerald-500/8"><div className="mb-1 flex items-center gap-1.5"><CalendarCheck size={13} className="text-emerald-600" /><span className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Daily log</span></div><p className="text-[11px] text-zinc-600 dark:text-zinc-400">Capture time, mood, and reflection.</p></div>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div
-              className="absolute -bottom-8 left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{
-                width: '80%',
-                height: '60px',
-                background: 'radial-gradient(ellipse, rgba(37, 99, 235, 0.12) 0%, transparent 70%)',
-                filter: 'blur(16px)',
-              }}
-            />
           </motion.div>
         </div>
       </section>

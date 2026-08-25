@@ -33,7 +33,7 @@ const links = {
 export default function Footer() {
   return (
     <footer
-      className="px-6 pt-16 pb-8 w-full bg-zinc-100 border-t border-zinc-200 dark:bg-[#050505] dark:border-white/5 transition-colors duration-300"
+      className="w-full px-4 pt-14 pb-8 sm:px-6 sm:pt-16 bg-zinc-100 border-t border-zinc-200 dark:bg-[#050505] dark:border-white/5 transition-colors duration-300"
     >
       <div className="max-w-6xl mx-auto">
         <motion.div

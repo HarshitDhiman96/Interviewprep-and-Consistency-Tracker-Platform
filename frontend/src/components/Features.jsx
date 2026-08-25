@@ -1,181 +1,127 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { BrainCircuit, Flame, Target, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { ArrowUpRight, BrainCircuit, CalendarCheck, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+const IMAGE_PADDING = 12;
 
 const features = [
   {
-    icon: <Flame size={22} color="#EA580C" />,
-    label: 'Daily Session Logging',
-    desc:
-      'Commit your daily study sessions with zero-latency. Track topics, time spent, and build an unbreakable streak.',
-    badge: { text: '🔥 STREAK ACTIVE: 47 DAYS', color: '#EA580C' },
+    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop',
+    eyebrow: 'Your adaptive mentor',
+    heading: 'Coaching that remembers the work you have done.',
+    icon: BrainCircuit,
+    title: 'A personalized AI coach, not generic advice.',
+    description: 'APEX keeps the context from your coaching conversations and study activity, so each follow-up can connect to your goals, prior obstacles, and progress.',
+    details: ['Conversation-aware recommendations', 'Memory-backed coaching context', 'Actionable follow-up prompts'],
+    cta: 'Meet your coach',
   },
   {
-    icon: <Target size={22} color="#2563EB" />,
-    label: 'Consistency Metrics',
-    desc:
-      'Monitor your Total Hours Spent and global Consistency Score to stay motivated and measure your true dedication over time.',
-    badge: null,
-    progress: true,
+    imageUrl: 'https://images.unsplash.com/photo-1530893609608-32a9af3aa95c?q=80&w=2564&auto=format&fit=crop',
+    eyebrow: 'Make progress visible',
+    heading: 'Turn daily effort into a consistency system.',
+    icon: CalendarCheck,
+    title: 'Log the work. Build the streak. See the pattern.',
+    description: 'Capture skills, topics, time, difficulty, outcome, mood, and reflection in one focused daily log. APEX turns that activity into streaks, weekly progress, and a measurable consistency score.',
+    details: ['Daily and weekly progress', 'Streaks that update automatically', 'Goal-guided preparation'],
+    cta: 'Start tracking',
   },
   {
-    icon: <AlertTriangle size={22} color="#6B7280" />,
-    label: 'Weak Area Detection',
-    desc:
-      'Flag sessions as "Stuck" and let the system identify systemic bottlenecks in your workflow before they compound.',
-    badge: { text: '↗ NEEDS FOCUS', color: '#EF4444' },
-  },
-  {
-    icon: <BrainCircuit size={22} color="#7C3AED" />,
-    label: 'AI-Powered Consistency Insights',
-    desc:
-      'We help you understand why you lose consistency and guide you to improve using intelligent insights.',
-    badge: null,
-    cta: true,
+    imageUrl: 'https://images.unsplash.com/photo-1504610926078-a1611febcad3?q=80&w=2416&auto=format&fit=crop',
+    eyebrow: 'Know what to do next',
+    heading: 'Find weak spots before they become roadblocks.',
+    icon: Target,
+    title: 'From stuck sessions to a focused revision plan.',
+    description: 'APEX detects topics with low practice or repeated stuck sessions, then helps you create a revision queue around the areas most likely to improve your interview readiness.',
+    details: ['Weak topic detection', 'Targeted revision queue', 'Progress and activity analytics'],
+    cta: 'Build your plan',
   },
 ];
 
-const container = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
+function StickyFeatureImage({ imageUrl }) {
+  const targetRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: targetRef, offset: ['end end', 'end start'] });
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [0.65, 0.86]);
 
-const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-};
+  return (
+    <motion.div
+      ref={targetRef}
+      className="site-grid-exempt sticky top-3 h-[calc(100svh-24px)] overflow-hidden rounded-[28px] border border-white/20 bg-zinc-950 shadow-2xl shadow-zinc-950/20"
+      style={{ scale: reduceMotion ? 1 : scale, backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
+      <motion.div className="absolute inset-0 bg-zinc-950" style={{ opacity: reduceMotion ? 0.7 : opacity }} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_35%,rgba(37,99,235,0.24),transparent_42%)]" />
+    </motion.div>
+  );
+}
+
+function FeatureOverlay({ eyebrow, heading }) {
+  const targetRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: targetRef, offset: ['start end', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], [160, -160]);
+  const opacity = useTransform(scrollYProgress, [0.2, 0.42, 0.72, 0.9], [0, 1, 1, 0]);
+
+  return (
+    <motion.div
+      ref={targetRef}
+      className="pointer-events-none absolute inset-0 z-10 flex min-h-screen items-center justify-center px-6 text-center text-white"
+      style={{ y: reduceMotion ? 0 : y, opacity: reduceMotion ? 1 : opacity }}
+    >
+      <div className="max-w-4xl">
+        <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-blue-200 sm:text-sm">{eyebrow}</p>
+        <h3 className="text-balance text-4xl font-black leading-[0.95] tracking-[-0.045em] sm:text-5xl md:text-7xl" style={{ fontFamily: 'Manrope, sans-serif' }}>{heading}</h3>
+      </div>
+    </motion.div>
+  );
+}
+
+function FeatureDetail({ feature, index }) {
+  const navigate = useNavigate();
+  const Icon = feature.icon;
+  return (
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-5 pb-20 pt-12 sm:px-8 md:grid-cols-12 md:gap-12 md:pb-28 md:pt-16">
+      <div className="md:col-span-4">
+        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 dark:border-blue-400/20 dark:bg-blue-500/10"><Icon size={22} className="text-blue-600 dark:text-blue-300" /></div>
+        <p className="label-precision text-blue-700 dark:text-blue-300">0{index + 1} / APEX SYSTEM</p>
+        <h3 className="mt-3 text-3xl font-black tracking-[-0.035em] text-zinc-950 dark:text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>{feature.title}</h3>
+      </div>
+      <div className="md:col-span-8">
+        <p className="max-w-3xl text-lg leading-relaxed text-zinc-600 dark:text-zinc-300 sm:text-xl">{feature.description}</p>
+        <div className="my-7 grid gap-3 sm:grid-cols-3">
+          {feature.details.map((detail) => <div key={detail} className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 dark:border-white/10 dark:bg-[#181818] dark:text-zinc-200">{detail}</div>)}
+        </div>
+        <button type="button" onClick={() => navigate('/signup')} className="inline-flex items-center gap-2 rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.01] dark:bg-[var(--primary)] dark:text-[#002d64]">
+          {feature.cta} <ArrowUpRight size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TextParallaxFeature({ feature, index }) {
+  return (
+    <div style={{ paddingLeft: IMAGE_PADDING, paddingRight: IMAGE_PADDING }}>
+      <div className="relative h-[125svh] min-h-[760px] md:h-[140vh]">
+        <StickyFeatureImage imageUrl={feature.imageUrl} />
+        <FeatureOverlay eyebrow={feature.eyebrow} heading={feature.heading} />
+      </div>
+      <FeatureDetail feature={feature} index={index} />
+    </div>
+  );
+}
 
 export default function Features() {
   return (
-    <section
-      id="features"
-      className="relative py-28 px-6 bg-zinc-50 dark:bg-[var(--surface)] transition-colors duration-300"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Section header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 gap-4">
-          <div>
-            <motion.h2
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="font-black mb-3 text-zinc-950 dark:text-white"
-              style={{
-                fontFamily: 'Manrope, sans-serif',
-                fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-                letterSpacing: '-0.03em',
-              }}
-            >
-              Engineered for Momentum
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-zinc-600 dark:text-zinc-400"
-              style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem' }}
-            >
-              Precision tools designed to eliminate friction and amplify output.
-              <br />No fluff, just performance-to-output architecture.
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <span className="label-precision text-zinc-600">
-              FEATURE SET v6.0.2
-            </span>
-          </motion.div>
-        </div>
-
-        {/* Cards */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-80px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
-        >
-          {features.map((f) => (
-            <motion.div key={f.label} variants={item} className="p-7 flex flex-col gap-4 rounded-[1.25rem] bg-white shadow-lg shadow-zinc-200/50 border border-zinc-200 dark:bg-[var(--surface-container)] dark:border-transparent dark:shadow-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-200/80 dark:hover:shadow-[0_8px_40px_rgba(37,99,235,0.08),0_0_0_1px_rgba(37,99,235,0.06)]">
-              {/* Icon */}
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center"
-                style={{ background: '#F3F4F6' }}
-              >
-                {f.icon}
-              </div>
-
-              <h3
-                className="font-bold text-zinc-950 dark:text-[var(--on-surface)]"
-                style={{ fontFamily: 'Manrope, sans-serif', fontSize: '1.125rem' }}
-              >
-                {f.label}
-              </h3>
-
-              <p className="text-zinc-600 dark:text-[rgba(255,255,255,0.4)]" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', lineHeight: 1.7 }}>
-                {f.desc}
-              </p>
-
-              {/* Progress bar for Analytics card */}
-              {f.progress && (
-                <div>
-                  <div className="h-0.5 rounded-full overflow-hidden" style={{ background: '#E5E7EB' }}>
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: '68%' }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.4, duration: 1, ease: 'easeOut' }}
-                      className="h-full rounded-full"
-                      style={{ background: '#2563EB', boxShadow: '0 0 8px rgba(37,99,235,0.5)' }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Badge */}
-              {f.badge && (
-                <div className="mt-auto">
-                  <span
-                    className="inline-block px-3 py-1 rounded-full label-precision"
-                    style={{
-                      background: `${f.badge.color}15`,
-                      color: f.badge.color,
-                      border: `1px solid ${f.badge.color}30`,
-                    }}
-                  >
-                    {f.badge.text}
-                  </span>
-                </div>
-              )}
-
-              {/* Learn more arrow  */}
-              {!f.badge && !f.progress && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.href = '/signup';
-                  }}
-                  className="mt-auto flex w-fit items-center gap-1 rounded-lg border border-blue-500/20 px-3 py-2 text-sm font-semibold transition hover:bg-blue-500/10"
-                  style={{ color: '#2563EB', fontFamily: 'Inter, sans-serif' }}
-                >
-                  <span>{f.cta ? 'Start Tracking' : 'Explore'}</span>
-                  <ArrowUpRight size={14} />
-                </button>
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
+    <section id="features" className="relative bg-zinc-50 py-16 dark:bg-[var(--surface)] sm:py-20">
+      <div className="mx-auto max-w-6xl px-5 pb-12 text-center sm:px-8 sm:pb-16">
+        <p className="label-precision mb-4 text-blue-700 dark:text-blue-300">THE APEX ADVANTAGE</p>
+        <h2 className="text-balance text-3xl font-black tracking-[-0.04em] text-zinc-950 dark:text-white sm:text-5xl" style={{ fontFamily: 'Manrope, sans-serif' }}>A preparation system that adapts to you.</h2>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-300 sm:text-lg">Build consistency with an AI coach that understands your study history, shows the patterns, and helps you take the next useful step.</p>
       </div>
+      {features.map((feature, index) => <TextParallaxFeature key={feature.title} feature={feature} index={index} />)}
     </section>
   );
 }

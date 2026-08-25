@@ -28,7 +28,7 @@ export default function CTA() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="p-12 flex flex-col justify-center"
+            className="p-7 sm:p-10 md:p-12 flex flex-col justify-center"
           >
             <p className="label-precision mb-4 text-zinc-600">
               JOIN 40,000+ HIGH PERFORMERS

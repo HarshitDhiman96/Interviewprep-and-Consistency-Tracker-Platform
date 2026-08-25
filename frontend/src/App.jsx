@@ -16,6 +16,7 @@ import BackToTop from './components/BackToTop';
 import HeatmapTracker from './components/HeatmapTracker';
 import HeatmapCanvas from './components/HeatmapCanvas';
 import InconsistencyReasonPopup from './components/InconsistencyReasonPopup';
+import GridBackground from './components/GridBackground';
 
 // ── Scroll to top on every route change ───────────────────────────
 function ScrollToTop() {
@@ -44,8 +45,9 @@ function AppLayout() {
   const isDashboardRoute = DASHBOARD_ROUTES.some(r => location.pathname.startsWith(r));
 
   return (
-    <div style={{ background: 'var(--surface)', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div className="app-shell" style={{ background: 'var(--surface)', minHeight: '100vh', overflowX: 'clip' }}>
       <ScrollToTop />
+      <GridBackground />
       <CursorFollower />
       <HeatmapWrapper />
       {!isDashboardRoute && <Navbar />}

@@ -53,15 +53,16 @@ export default function Login() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center pt-24 pb-12 px-6 relative z-10 bg-zinc-50 dark:bg-[#0e0e0e] transition-colors duration-300">
+    <section className="auth-page-shell min-h-screen flex items-center justify-center pt-24 pb-12 px-4 sm:px-6 relative z-10 transition-colors duration-300">
       <button onClick={() => navigate('/')} className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-sm transition-colors z-[9999] cursor-pointer bg-transparent border-none text-zinc-500 hover:text-zinc-900 dark:text-white/50 dark:hover:text-white">
         <ArrowLeft size={16} /> Back to Home
       </button>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4, scale: 1.01 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="w-full max-w-md p-8 md:p-10 rounded-3xl bg-white border border-zinc-200 shadow-xl shadow-zinc-200/50 dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/5 dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-300"
+        className="w-full max-w-md p-6 sm:p-8 md:p-10 rounded-3xl bg-white border border-zinc-200 dark:bg-[#181818] dark:border-white/10 transition-colors duration-300 hover:border-zinc-300 dark:hover:border-white/20"
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black mb-2 text-zinc-950 dark:text-[var(--on-surface)]" style={{ fontFamily: 'Manrope, sans-serif' }}>

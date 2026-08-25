@@ -43,10 +43,13 @@ export default function Navbar() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4"
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4"
     >
       <nav
-        className={`glass glass-hover flex items-center gap-8 px-6 py-3 rounded-full transition-all duration-500 ${scrolled ? 'shadow-lg shadow-black/30' : ''
+        className={`glass flex items-center gap-4 px-4 py-3 sm:gap-8 sm:px-6 rounded-full transition-all duration-500 ${scrolled
+          ? 'bg-white/95 dark:bg-[#111111]/95 backdrop-blur-2xl border border-zinc-200/90 dark:border-white/15 shadow-xl shadow-zinc-900/10 dark:shadow-black/40'
+          : 'bg-white/70 dark:bg-[#0e0e0e]/65 backdrop-blur-md border border-zinc-200/50 dark:border-white/10'
+          }
           }`}
         style={{ maxWidth: '860px', width: '100%' }}
       >
