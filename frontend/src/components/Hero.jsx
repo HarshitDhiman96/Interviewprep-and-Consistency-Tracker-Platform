@@ -44,7 +44,7 @@ export default function Hero() {
         <div className="absolute inset-0 overflow-hidden">
           <ParticleField />
           <div
-            className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+            className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none dark:hidden"
             style={{
               width: '600px',
               height: '600px',

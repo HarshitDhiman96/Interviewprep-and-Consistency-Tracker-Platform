@@ -11,6 +11,7 @@ const jwttoken = require("jsonwebtoken")
 const user = require('../models/user-model')
 const Streak = require('../models/streak_model')
 const Log = require('../models/logs-model')
+const InconsistencyReason = require('../models/inconsistency-reason-model')
 const { getCookieOptions } = require('../utils/cookie-utils')
 
 const COOKIE_NAME = "token";
@@ -145,10 +146,22 @@ const login = async (req, res) => {
         Boolean(loginuser.isFirstTimeUser) &&
         !loginuser.lastLoginDate &&
         !activitySnapshot.hasPreviousActivity;
-      const hasBrokenExistingStreak =
+      
+      let hasBrokenExistingStreak =
         !wasFirstLogin &&
         activitySnapshot.hasPreviousActivity &&
         gapDays > 2;
+
+      // Check if user has already submitted a reason for this gap (after their last active date)
+      if (hasBrokenExistingStreak && activitySnapshot.lastActiveDate) {
+        const alreadySubmitted = await InconsistencyReason.findOne({
+          userId: loginuser._id,
+          createdAt: { $gt: activitySnapshot.lastActiveDate }
+        });
+        if (alreadySubmitted) {
+          hasBrokenExistingStreak = false;
+        }
+      }
 
       loginuser.lastActiveDate = activitySnapshot.lastActiveDate || loginuser.lastActiveDate;
       loginuser.currentStreak = activitySnapshot.currentStreak || 0;
